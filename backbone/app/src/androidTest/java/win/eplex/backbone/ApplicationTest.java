@@ -1,4 +1,4 @@
-package eplex.win.backbone;
+package win.eplex.backbone;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
