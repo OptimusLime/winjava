@@ -21,6 +21,7 @@ android {
 }
 
 dependencies {
+    compile 'com.octo.android.robospice:robospice:1.4.12'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':win-backbone')
 }
