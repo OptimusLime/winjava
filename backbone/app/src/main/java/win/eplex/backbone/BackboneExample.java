@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 
+import eplex.win.winBackbone.winBackbone;
 
 
 public class BackboneExample extends Activity {
@@ -58,6 +59,12 @@ public class BackboneExample extends Activity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_backbone_example, container, false);
+
+            //here let's do some damage! Let's make a winBackbone
+
+            //no modules to send in, kthx
+            winBackbone backbone = winBackbone.getInstance(getActivity());
+
             return rootView;
         }
     }
