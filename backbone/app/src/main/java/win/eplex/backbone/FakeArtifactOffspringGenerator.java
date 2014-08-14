@@ -5,12 +5,12 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.List;
 
 import eplex.win.winBackbone.Artifact;
-import eplex.win.winBackbone.ArtifactGenerator;
+import eplex.win.winBackbone.ArtifactOffspringGenerator;
 
 /**
  * Created by paul on 8/8/14.
  */
-public class FakeArtifactGenerator implements ArtifactGenerator {
+public class FakeArtifactOffspringGenerator implements ArtifactOffspringGenerator {
 
     public Artifact createArtifactFromParents(List<Artifact> parents)
     {
@@ -20,6 +20,9 @@ public class FakeArtifactGenerator implements ArtifactGenerator {
         int selIx = (int)Math.floor(Math.random()*parents.size());
 
         //return a clone of one of the parents, please!
-        return parents.get(selIx).clone();
+        Artifact clone = parents.get(selIx).clone();
+        //add clone info to our WID -- totally a fake thing to do
+        clone.setWID("clone-" + (int)(Math.random()*Integer.MAX_VALUE) + "-p-" + clone.wid());
+        return clone;
     }
 }

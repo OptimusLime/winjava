@@ -1,14 +1,20 @@
 package eplex.win.winBackbone;
 
-import org.codehaus.jackson.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Created by paul on 8/8/14.
  */
 public interface Artifact {
 
-    Artifact fromJSON(ObjectNode jsonArtifact);
-    ObjectNode toJSON();
+    Artifact fromJSON(String jsonArtifact);
+    Artifact fromJSON(JsonNode jsonArtifact);
+    JsonNode toJSON();
+    String toJSONString();
+
+    //get/set wid please!
     String wid();
+    void setWID(String wid);
+
     Artifact clone();
 }

@@ -1,6 +1,7 @@
 package eplex.win.winBackbone;
 
-import org.codehaus.jackson.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.List;
 
 /**
@@ -9,14 +10,14 @@ import java.util.List;
 public interface BasicEvolution {
 
     //configure with some parameters of course!
-    void configure(ObjectNode configuration);
+    void configure(JsonNode configuration);
 
     //who are the initial seed objects? Branch or scratch? Need to know.
     void asyncLoadSeeds(FinishedCallback callback);
 
     //Be able to adjust who the parents are all the time
-    void selectParents(List<Artifact> parentIDs);
-    void unselectParents(List<Artifact> parentIDs);
+    void selectParents(List<String> parentIDs);
+    void unselectParents(List<String> parentIDs);
 
     //Most important thing are the children. They're the future
     List<Artifact> createOffspring(int count);

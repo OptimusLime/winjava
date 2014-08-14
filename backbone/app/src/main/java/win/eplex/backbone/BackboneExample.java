@@ -11,10 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 
+import javax.inject.Inject;
+
+import cardUI.GridSquareFragment;
+import eplex.win.winBackbone.BasicEvolution;
 import eplex.win.winBackbone.winBackbone;
 
 
 public class BackboneExample extends Activity {
+
+    @Inject
+    BasicEvolution evolution;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +29,7 @@ public class BackboneExample extends Activity {
         setContentView(R.layout.activity_backbone_example);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new GridSquareFragment())
                     .commit();
         }
     }
@@ -45,27 +52,5 @@ public class BackboneExample extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_backbone_example, container, false);
-
-            //here let's do some damage! Let's make a winBackbone
-
-            //no modules to send in, kthx
-            winBackbone backbone = winBackbone.getInstance(getActivity());
-
-            return rootView;
-        }
     }
 }
