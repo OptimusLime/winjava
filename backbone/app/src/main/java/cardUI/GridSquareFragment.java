@@ -18,6 +18,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import asynchronous.main.AsyncInfiniteIEC;
+import asynchronous.modules.FakeAsyncLocalIECModule;
 import cardUI.cards.GridCard;
 import dagger.Module;
 import dagger.ObjectGraph;
@@ -45,7 +47,8 @@ public class GridSquareFragment extends BaseFragment {
 
     protected ScrollView mScrollView;
     private ObjectGraph graph;
-    InfiniteUI uiObject;
+//    InfiniteUI uiObject;
+    AsyncInfiniteIEC asyncIEC;
 
     @Override
     public int getTitleResourceId() {
@@ -61,24 +64,21 @@ public class GridSquareFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        if(graph == null)
+        {
+            //we need to inject our objects!
+            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule()).toArray());
 
-        //we need to inject our objects!
-        graph = ObjectGraph.create(Arrays.asList(new FakeEvolutionModule(), new FakeArtifactModule()).toArray());
+            //now inject ourselves! mwahahahahaha
+            //a-rod loves this line
+            //SPORTZ!
+            asyncIEC = graph.get(AsyncInfiniteIEC.class);
+            asyncIEC.injectGraph(getActivity(), graph);
 
-        //now inject ourselves! mwahahahahaha
-        //a-rod loves this line
-        //SPORTZ!
-        uiObject = graph.get(InfiniteUI.class);
-        graph.inject(uiObject);
-
-        //important to set our activity after creation
-        uiObject.setup(getActivity(), graph);
-
-        //start up the spicy-ness
-        uiObject.cardGenerator.spicyStart(getActivity());
-
-        //now initialize objects inside the activity
-        uiObject.initCards();//create our card holding views
+            //now we initialize everything! This can be an async task, if you want
+            //those it's pretty simple on its own
+            asyncIEC.asyncInitializeIECandUI(null);
+        }
     }
 
     @Override
@@ -90,8 +90,8 @@ public class GridSquareFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(uiObject != null)
-            uiObject.cardGenerator.spicyStop();
+//        if(uiObject != null)
+//            uiObject.cardGenerator.spicyStop();
     }
 
     @Override

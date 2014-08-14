@@ -37,9 +37,11 @@ dependencies {
     compile 'com.octo.android.robospice:robospice:1.4.12'
     compile 'com.octo.android.robospice:robospice-spring-android:1.4.12'
 
+    compile 'fr.avianey:bolts-android-api:1.1.0'
 
     compile 'com.fasterxml.jackson.core:jackson-core:2.4.1.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.1.1'
+
 
     //Core card library
     compile 'com.github.gabrielemariotti.cards:library:1.8.0'

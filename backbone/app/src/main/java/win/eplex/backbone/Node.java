@@ -6,7 +6,7 @@ package win.eplex.backbone;
 
 public class Node
 {
-    String gid;
+    public String gid;
 
     public Node clone()
     {
