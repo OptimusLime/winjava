@@ -2,6 +2,8 @@ package asynchronous.interfaces;
 
 import android.app.Activity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import bolts.Task;
 
 /**
@@ -9,5 +11,5 @@ import bolts.Task;
  */
 public interface AsyncPhenotypeToUI<PhenoClass, UIClass> {
 
-    Task<UIClass> asyncPhenotypeToUI(Activity act, PhenoClass phenotype);
+    Task<UIClass> asyncPhenotypeToUI(Activity act, String wid, PhenoClass phenotype, JsonNode params);
 }

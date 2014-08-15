@@ -41,9 +41,18 @@ public class AsyncArtifactToNetworkOutput implements AsyncArtifactToPhenotype<Ar
         List<Node> nodes = ((FakeGenome)g).nodes;
         List<Connection> conns = ((FakeGenome)g).connections;
 
+        int width = 25;
+        int height = 25;
+
+        if(params != null)
+        {
+            width = params.get("width").asInt();
+            height = params.get("height").asInt();
+        }
+
         //then activate our connections!
         //call upon params
-        int pixelCount = 50*50;
+        int pixelCount = width*height;
 
         //now we have our outputs, hoo-ray!
         double[][] fakeOutputs = new double[pixelCount][];

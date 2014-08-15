@@ -1,6 +1,8 @@
 package cardUI.cards;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +37,7 @@ public class GridCard extends Card {
         super(context, innerLayout);
     }
 
-    public void init() {
+    public void init(String wid, Bitmap bitThumb) {
         CardHeader header = new CardHeader(getContext());
         header.setButtonOverflowVisible(true);
         header.setTitle(headerTitle);
@@ -48,11 +50,13 @@ public class GridCard extends Card {
 
         addCardHeader(header);
 
-        GplayGridThumb thumbnail = new GplayGridThumb(getContext());
-        if (resourceIdThumbnail > -1)
-            thumbnail.setDrawableResource(resourceIdThumbnail);
-        else
-            thumbnail.setDrawableResource(R.drawable.ic_ic_launcher_web);
+        GplayGridThumb thumbnail = new GplayGridThumb(getContext(), wid, bitThumb);
+
+//        if (resourceIdThumbnail > -1)
+//            thumbnail.setDrawableResource(resourceIdThumbnail);
+//        else
+//            thumbnail.setDrawableResource(R.drawable.ic_ic_launcher_web);
+
         addCardThumbnail(thumbnail);
 
         setOnClickListener(new OnCardClickListener() {
@@ -82,9 +86,23 @@ public class GridCard extends Card {
 
     class GplayGridThumb extends CardThumbnail {
 
-        public GplayGridThumb(Context context) {
+        public GplayGridThumb(final Context context, final String wid, final Bitmap b) {
             super(context);
+            this.setCustomSource(new CustomSource() {
+                @Override
+                public String getTag() {
+                    return wid;
+                }
+
+                @Override
+                public Bitmap getBitmap() {
+//                    Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_ic_launcher_web);
+//                    return largeIcon;
+                    return b;
+                }
+            });
         }
+
 
         @Override
         public void setupInnerViewElements(ViewGroup parent, View viewImage) {

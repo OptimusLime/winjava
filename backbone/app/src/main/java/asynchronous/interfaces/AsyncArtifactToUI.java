@@ -2,6 +2,8 @@ package asynchronous.interfaces;
 
 import android.app.Activity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import javax.inject.Inject;
 
 import bolts.Task;
@@ -13,5 +15,5 @@ import it.gmariotti.cardslib.library.internal.Card;
  */
 public abstract class AsyncArtifactToUI<ArtClass, PhenoClass, UIClass>  {
 
-    public abstract Task<UIClass> asyncConvertArtifactToUI(Activity act, Artifact artifact);
+    public abstract Task<UIClass> asyncConvertArtifactToUI(Activity act, Artifact artifact, JsonNode params);
 }

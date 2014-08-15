@@ -2,6 +2,8 @@ package asynchronous.implementation;
 
 import android.app.Activity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import javax.inject.Inject;
 
 import asynchronous.interfaces.AsyncArtifactToPhenotype;
@@ -26,14 +28,14 @@ public class AsyncArtifactToCard extends AsyncArtifactToUI<Artifact, double[][],
 
 
     @Override
-    public Task<Card> asyncConvertArtifactToUI(final Activity act, Artifact artifact) {
+    public Task<Card> asyncConvertArtifactToUI(final Activity act, final Artifact artifact, final JsonNode params) {
 
         //We make the full conversion here, then return the object asynchronously
-        return artifactToPhenotypeMapper.asyncPhenotypeToUI(artifact, null)
+        return artifactToPhenotypeMapper.asyncPhenotypeToUI(artifact, params)
                 .continueWithTask(new Continuation<double[][], Task<Card>>() {
                     @Override
                     public Task<Card> then(Task<double[][]> task) throws Exception {
-                        return phenotypeToUIMapper.asyncPhenotypeToUI(act, task.getResult());
+                        return phenotypeToUIMapper.asyncPhenotypeToUI(act, artifact.wid(), task.getResult(), params);
                     }
                 });
     }

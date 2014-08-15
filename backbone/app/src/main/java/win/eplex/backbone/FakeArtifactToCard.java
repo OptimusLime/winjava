@@ -2,6 +2,7 @@ package win.eplex.backbone;
 
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Bitmap;
 
 import com.octo.android.robospice.Jackson2SpringAndroidSpiceService;
 import com.octo.android.robospice.SpiceManager;
@@ -91,11 +92,64 @@ public class FakeArtifactToCard implements ArtifactToCard {
                 card.resourceIdThumbnail = R.drawable.ic_smile;
             }
 
-            card.init();
+            if(results.length > 0) {
+
+                int[] colors = new int[results.length * 4];
+
+                int width = 50;
+                int height = 50;
+
+                int ix = 0;
+                for(int c=0; c < results.length; c++)
+                {
+                    double[] hsv = results[c];
+                    int[] rgb = PicHSBtoRGB(hsv[0], hsv[1], hsv[2]);
+                    for(int p=0; p < 3; p++)
+                    {
+                        colors[ix++] = rgb[p];
+                    }
+                    //set the alpha!
+                    colors[ix++] = 255;
+                }
+
+                Bitmap picture = Bitmap.createBitmap(colors, 0, width, width, height, Bitmap.Config.ARGB_8888);
+
+                card.init("fakeWID", picture);
+            }
             return card;
         }
         //oops, we don't have an activity--just return null
         return null;
+    }
+    int[] PicHSBtoRGB(double h, double s, double v)
+    {
+
+        h = (h*6.0)%6.0;
+
+
+        double r = 0.0, g = 0.0, b = 0.0;
+
+        if(h < 0.0) h += 6.0;
+        int hi = (int)Math.floor(h);
+        double f = h - hi;
+
+        double vs = v * s;
+        double vsf = vs * f;
+
+        double p = v - vs;
+        double q = v - vsf;
+        double t = v - vs + vsf;
+
+        switch(hi) {
+            case 0: r = v; g = t; b = p; break;
+            case 1: r = q; g = v; b = p; break;
+            case 2: r = p; g = v; b = t; break;
+            case 3: r = p; g = q; b = v; break;
+            case 4: r = t; g = p; b = v; break;
+            case 5: r = v; g = p; b = q; break;
+        }
+
+        return new int[]{(int)Math.floor(r*255),(int)Math.floor(g*255),(int)Math.floor(b*255)};
     }
 
 

@@ -5,6 +5,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,8 @@ import win.eplex.backbone.R;
  * Created by paul on 8/14/14.
  */
 public class AsyncInfiniteIEC {
+
+    JsonNode iecParams;
 
     CardGridArrayAdapter mCardArrayAdapter;
     EndlessGridScrollListener mScrollListener;
@@ -64,6 +68,22 @@ public class AsyncInfiniteIEC {
     }
 
     public Task<Void> asyncInitializeIECandUI(JsonNode params) {
+
+        iecParams = params;
+        if(iecParams == null) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode jNode = mapper.createObjectNode();
+
+            ObjectNode uiParams = mapper.createObjectNode();
+
+            uiParams.set("width", mapper.convertValue(100, JsonNode.class));
+            uiParams.set("height", mapper.convertValue(100 , JsonNode.class));
+
+            jNode.set("ui", uiParams);
+
+            iecParams = jNode;
+        }
 
         //first we initialize all our internal organs, so to speak
         initializeUI();
@@ -105,7 +125,7 @@ public class AsyncInfiniteIEC {
             //artifact? ... check!
 
             //asynch convert artifact to UI Card Object? ... Check!
-            tasks.add(asyncArtifactToUIMapper.asyncConvertArtifactToUI(getActivity(), a)
+            tasks.add(asyncArtifactToUIMapper.asyncConvertArtifactToUI(getActivity(), a, iecParams.get("ui"))
                     .continueWith(new Continuation<Card, Void>() {
                         @Override
                         public Void then(Task<Card> task) throws Exception {

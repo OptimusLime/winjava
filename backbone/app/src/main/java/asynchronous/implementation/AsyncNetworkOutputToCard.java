@@ -1,7 +1,13 @@
 package asynchronous.implementation;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.util.Log;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import java.nio.IntBuffer;
 import java.util.concurrent.Callable;
 
 import asynchronous.interfaces.AsyncPhenotypeToUI;
@@ -17,17 +23,17 @@ public class AsyncNetworkOutputToCard implements AsyncPhenotypeToUI<double[][], 
 
     //need to know the activity for creating the UI
     @Override
-    public Task<Card> asyncPhenotypeToUI(final Activity a, final double[][] phenotype) {
+    public Task<Card> asyncPhenotypeToUI(final Activity a, final String wid, final double[][] phenotype, final JsonNode params) {
 
         return Task.callInBackground(new Callable<Card>() {
             @Override
             public Card call() throws Exception {
-                return convertArtifactToPhenotype(a, phenotype);
+                return convertArtifactToPhenotype(a, wid, phenotype, params);
             }
         });
     }
 
-    private Card convertArtifactToPhenotype(Activity activity, double[][] results)
+    private Card convertArtifactToPhenotype(Activity activity, final String wid, double[][] results, final JsonNode params)
     {
         //now that we've got the juice, let's make ourselves useful, eh?
         //we should make a card with this info
@@ -55,10 +61,78 @@ public class AsyncNetworkOutputToCard implements AsyncPhenotypeToUI<double[][], 
                 card.resourceIdThumbnail = R.drawable.ic_smile;
             }
 
-            card.init();
+
+            if(results.length > 0) {
+
+                int[] colors = new int[results.length];
+
+                int width = params.get("width").asInt();
+                int height = params.get("height").asInt();
+
+                int ix = 0;
+                for(int c=0; c < results.length; c++)
+                {
+                    double[] hsv = results[c];
+                    int[] rgb = PicHSBtoRGB(hsv[0], hsv[1], hsv[2]);
+
+                    //set the alpha!
+                    colors[ix++] = Color.argb(255, rgb[0], rgb[1], rgb[2]);
+//                    Log.i("count", "Pixel ix: " + ix);
+                }
+                // You are using RGBA that's why Config is ARGB.8888
+                Bitmap picture = Bitmap.createBitmap(colors, 0, width, width, height, Bitmap.Config.ARGB_8888);
+//                Bitmap picture = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+                // vector is your int[] of ARGB value .
+//                picture.copyPixelsFromBuffer(makeBuffer(colors, colors.length));
+
+                card.init(wid, picture);
+            }
             return card;
         }
         //oops, we don't have an activity--just return null
         return null;
     }
+
+
+    private IntBuffer makeBuffer(int[] src, int n) {
+        IntBuffer dst = IntBuffer.allocate(n);
+        for (int i = 0; i < n; i++) {
+            dst.put(src[i]);
+        }
+        dst.rewind();
+        return dst;
+    }
+
+    int[] PicHSBtoRGB(double h, double s, double v)
+    {
+
+        h = (h*6.0)%6.0;
+
+
+        double r = 0.0, g = 0.0, b = 0.0;
+
+        if(h < 0.0) h += 6.0;
+        int hi = (int)Math.floor(h);
+        double f = h - hi;
+
+        double vs = v * s;
+        double vsf = vs * f;
+
+        double p = v - vs;
+        double q = v - vsf;
+        double t = v - vs + vsf;
+
+        switch(hi) {
+            case 0: r = v; g = t; b = p; break;
+            case 1: r = q; g = v; b = p; break;
+            case 2: r = p; g = v; b = t; break;
+            case 3: r = p; g = q; b = v; break;
+            case 4: r = t; g = p; b = v; break;
+            case 5: r = v; g = p; b = q; break;
+        }
+
+        return new int[]{(int)Math.floor(r*255),(int)Math.floor(g*255),(int)Math.floor(b*255)};
+    }
+
 }
