@@ -35,7 +35,6 @@ import it.gmariotti.cardslib.library.view.CardGridView;
 import win.eplex.backbone.ArtifactCardCallback;
 import win.eplex.backbone.ArtifactToCard;
 import win.eplex.backbone.Modules.FakeArtifactModule;
-import win.eplex.backbone.Modules.FakeEvolutionModule;
 import win.eplex.backbone.R;
 
 /**
@@ -47,7 +46,6 @@ public class GridSquareFragment extends BaseFragment {
 
     protected ScrollView mScrollView;
     private ObjectGraph graph;
-//    InfiniteUI uiObject;
     AsyncInfiniteIEC asyncIEC;
 
     @Override
