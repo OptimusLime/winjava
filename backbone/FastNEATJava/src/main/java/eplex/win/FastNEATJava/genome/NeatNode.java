@@ -1,6 +1,6 @@
 package eplex.win.FastNEATJava.genome;
 
-import eplex.win.FastNEATJava.genome.NodeType;
+import eplex.win.FastCPPNJava.network.NodeType;
 
 public class NeatNode {
 

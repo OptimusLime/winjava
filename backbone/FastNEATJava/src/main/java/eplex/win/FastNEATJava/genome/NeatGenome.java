@@ -3,8 +3,6 @@ package eplex.win.FastNEATJava.genome;
 
 import android.util.Pair;
 
-import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import eplex.win.FastCPPNJava.activation.CPPNActivationFactory;
+import eplex.win.FastCPPNJava.network.NodeType;
 import eplex.win.FastCPPNJava.utils.MathUtils;
 import eplex.win.FastNEATJava.help.CorrelationItem;
 import eplex.win.FastNEATJava.help.CorrelationResults;

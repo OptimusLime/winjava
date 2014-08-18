@@ -1,4 +1,4 @@
-package eplex.win.FastNEATJava.genome;
+package eplex.win.FastCPPNJava.network;
 
 /**
  * Created by paul on 8/15/14.

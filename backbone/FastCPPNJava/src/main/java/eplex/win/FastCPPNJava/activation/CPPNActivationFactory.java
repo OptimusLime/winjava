@@ -21,7 +21,7 @@ public class CPPNActivationFactory {
             return functionTable.get(functionID);
 
         try {
-            Class<?> clazz = Class.forName("eplex.win.FastCPPNJava.activation." + functionID);
+            Class<?> clazz = Class.forName("eplex.win.FastCPPNJava.activation.functions" + functionID);
             ActivationFunction aFunction = (ActivationFunction)clazz.newInstance();
 
             // For now the function ID is the name of a class that implements IActivationFunction.
