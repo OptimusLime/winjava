@@ -13,7 +13,6 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import com.octo.android.robospice.request.listener.SpiceServiceListener;
 
 import cardUI.cards.GridCard;
-import cardUI.data.SpicyCache;
 import eplex.win.winBackbone.Artifact;
 import it.gmariotti.cardslib.library.internal.Card;
 

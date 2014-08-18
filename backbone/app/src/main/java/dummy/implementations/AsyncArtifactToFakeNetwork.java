@@ -1,14 +1,13 @@
-package phenotype;
+package dummy.implementations;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.octo.android.robospice.request.SpiceRequest;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import asynchronous.interfaces.AsyncArtifactToPhenotype;
+import bolts.Task;
 import eplex.win.winBackbone.Artifact;
-import eplex.win.winBackbone.ArtifactToPhenotypeMapping;
-import eplex.win.winBackbone.AsyncArtifactToPhenotype;
 import eplex.win.winBackbone.Genome;
 import win.eplex.backbone.Connection;
 import win.eplex.backbone.FakeArtifact;
@@ -16,21 +15,23 @@ import win.eplex.backbone.FakeGenome;
 import win.eplex.backbone.Node;
 
 /**
- * Created by paul on 8/13/14.
+ * Created by paul on 8/14/14.
  */
-public class SpicyArtifactPhenotypeMapping extends SpiceRequest<double[][]> implements ArtifactToPhenotypeMapping {
+public class AsyncArtifactToFakeNetwork implements AsyncArtifactToPhenotype<Artifact, double[][]> {
+    @Override
+    public Task<double[][]> asyncPhenotypeToUI(final Artifact artifact, final JsonNode params) {
 
-    private Artifact offspring;
-    private JsonNode params;
-
-    public SpicyArtifactPhenotypeMapping()
-    {
-        super(double[][].class);
+        return Task.callInBackground(new Callable<double[][]>() {
+            @Override
+            public double[][] call() throws Exception {
+                return syncConvertNetworkToOutputs(artifact,params);
+            }
+        });
     }
 
-    @Override
-    public double[][] loadDataFromNetwork() throws Exception {
-
+    //synchronously convert artifacts into double[][] netowrk outputs, yo
+    public double[][] syncConvertNetworkToOutputs(Artifact offspring, JsonNode params)
+    {
         //let's convert our artifact object into a damn genome
         //then take that genome, and use it to build our outputs
 
@@ -40,9 +41,18 @@ public class SpicyArtifactPhenotypeMapping extends SpiceRequest<double[][]> impl
         List<Node> nodes = ((FakeGenome)g).nodes;
         List<Connection> conns = ((FakeGenome)g).connections;
 
+        int width = 25;
+        int height = 25;
+
+        if(params != null)
+        {
+            width = params.get("width").asInt();
+            height = params.get("height").asInt();
+        }
+
         //then activate our connections!
         //call upon params
-        int pixelCount = 50*50;
+        int pixelCount = width*height;
 
         //now we have our outputs, hoo-ray!
         double[][] fakeOutputs = new double[pixelCount][];
@@ -59,16 +69,4 @@ public class SpicyArtifactPhenotypeMapping extends SpiceRequest<double[][]> impl
 
         return fakeOutputs;
     }
-    @Override
-    public Object createArtifactPhenotype(Artifact offspring, JsonNode params) {
-        return null;
-    }
-
-    @Override
-    public void asyncCreateArtifactPhenotype(Artifact offspring, JsonNode params, AsyncArtifactToPhenotype callback) {
-
-
-
-    }
-
 }

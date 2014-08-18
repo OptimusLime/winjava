@@ -1,4 +1,4 @@
-package asynchronous.implementation;
+package cppn.implementations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -17,7 +17,7 @@ import win.eplex.backbone.Node;
 /**
  * Created by paul on 8/14/14.
  */
-public class AsyncArtifactToNetworkOutput implements AsyncArtifactToPhenotype<Artifact, double[][]> {
+public class AsyncArtifactToCPPN implements AsyncArtifactToPhenotype<Artifact, double[][]> {
     @Override
     public Task<double[][]> asyncPhenotypeToUI(final Artifact artifact, final JsonNode params) {
 
@@ -69,4 +69,53 @@ public class AsyncArtifactToNetworkOutput implements AsyncArtifactToPhenotype<Ar
 
         return fakeOutputs;
     }
+
+//    function runCPPNAcrossFixedSize(activationFunction, size)
+//    {
+//        var inSqrt2 = Math.sqrt(2);
+//
+//        var allX = size.width, allY = size.height;
+//        var width = size.width, height= size.height;
+//
+//        var startX = -1, startY = -1;
+//        var dx = 2.0/(allX-1), dy = 2.0/(allY-1);
+//
+//        var currentX = startX, currentY = startY;
+//
+//        var newRow;
+//        var rows = [];
+//
+//        var inputs = [];
+//        var outputs, rgb;
+//
+//
+//        //we go by the rows
+//        for(var y=allY-1; y >=0; y--){
+//
+//            //init and push new row
+//            var newRow = [];
+//            rows.push(newRow);
+//            for(var x=0; x < allX; x++){
+//
+//                //just like in picbreeder!
+//                var currentX = ((x << 1) - width + 1) / width;
+//                var currentY = ((y << 1) - height + 1) / height;
+//
+//                inputs = [currentX, currentY, Math.sqrt(currentX*currentX + currentY*currentY)*inSqrt2];
+//
+//                //run the CPPN please! Acyclic cppns only, thank you
+//                outputs = activationFunction(inputs);
+//
+//                //rgb conversion here
+//                rgb = FloatToByte(PicHSBtoRGB(outputs[0], clampZeroOne(outputs[1]), Math.abs(outputs[2])));
+//
+//                //add to list of outputs to return
+//                newRow.push(rgb);
+//            }
+//        }
+//
+//        return rows;
+//    }
+
+
 }

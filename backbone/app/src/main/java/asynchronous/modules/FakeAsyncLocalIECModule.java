@@ -1,12 +1,8 @@
 package asynchronous.modules;
 
-import android.app.Activity;
-
 import asynchronous.implementation.AsyncArtifactToCard;
-import asynchronous.implementation.AsyncArtifactToNetworkOutput;
 import asynchronous.implementation.AsyncLocalIEC;
 import asynchronous.implementation.AsyncLocalRandomSeedLoader;
-import asynchronous.implementation.AsyncNetworkOutputToCard;
 import asynchronous.implementation.SyncLocalOffspringGenerator;
 import asynchronous.interfaces.AsyncArtifactToPhenotype;
 import asynchronous.interfaces.AsyncArtifactToUI;
@@ -14,20 +10,13 @@ import asynchronous.interfaces.AsyncInteractiveEvolution;
 import asynchronous.interfaces.AsyncPhenotypeToUI;
 import asynchronous.interfaces.AsyncSeedLoader;
 import asynchronous.main.AsyncInfiniteIEC;
-import bolts.Task;
-import cardUI.InfiniteUI;
+import cppn.implementations.AsyncArtifactToCPPN;
+import cppn.implementations.AsyncCPPNOutputToCard;
 import dagger.Module;
 import dagger.Provides;
 import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.ArtifactOffspringGenerator;
-import eplex.win.winBackbone.AsyncEvolutionLoader;
-import eplex.win.winBackbone.BasicEvolution;
 import it.gmariotti.cardslib.library.internal.Card;
-import win.eplex.backbone.ArtifactToCard;
-import win.eplex.backbone.FakeArtifactOffspringGenerator;
-import win.eplex.backbone.FakeArtifactToCard;
-import win.eplex.backbone.FakeAsyncEvolutionLoader;
-import win.eplex.backbone.FakeEvolution;
 
 /**
  * Created by paul on 8/14/14.
@@ -74,11 +63,11 @@ public class FakeAsyncLocalIECModule {
     //then takes those network outputs and converts them to cards
     @Provides
     public AsyncArtifactToPhenotype<Artifact, double[][]> provideArtifactToPhenotypeConverter(){
-        return new AsyncArtifactToNetworkOutput();
+        return new AsyncArtifactToCPPN();
     }
 
     @Provides
     public AsyncPhenotypeToUI<double[][], Card> providePhenotypeToUIConverter(){
-        return new AsyncNetworkOutputToCard();
+        return new AsyncCPPNOutputToCard();
     }
 }

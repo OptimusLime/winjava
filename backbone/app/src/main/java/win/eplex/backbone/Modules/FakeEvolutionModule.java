@@ -1,7 +1,6 @@
 package win.eplex.backbone.Modules;
 
-import cardUI.GridSquareFragment;
-import cardUI.InfiniteUI;
+import dummy.implementations.InfiniteUI;
 import dagger.Module;
 import dagger.Provides;
 import eplex.win.winBackbone.ArtifactOffspringGenerator;

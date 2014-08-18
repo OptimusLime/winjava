@@ -1,1 +1,1 @@
-include ':app', ':win-backbone'
+include ':app', ':win-backbone', ':FastNEATJava', ':FastCPPNJava'

@@ -1,4 +1,4 @@
-package asynchronous.implementation;
+package cppn.implementations;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -19,7 +19,7 @@ import win.eplex.backbone.R;
 /**
  * Created by paul on 8/14/14.
  */
-public class AsyncNetworkOutputToCard implements AsyncPhenotypeToUI<double[][], Card> {
+public class AsyncCPPNOutputToCard implements AsyncPhenotypeToUI<double[][], Card> {
 
     //need to know the activity for creating the UI
     @Override
@@ -73,18 +73,13 @@ public class AsyncNetworkOutputToCard implements AsyncPhenotypeToUI<double[][], 
                 for(int c=0; c < results.length; c++)
                 {
                     double[] hsv = results[c];
-                    int[] rgb = PicHSBtoRGB(hsv[0], hsv[1], hsv[2]);
+                    int[] rgb = PicHSBtoRGB(hsv[0], clampZeroOne(hsv[1]), Math.abs(hsv[2]));
 
-                    //set the alpha!
+                    //set the color from our network outputs
                     colors[ix++] = Color.argb(255, rgb[0], rgb[1], rgb[2]);
-//                    Log.i("count", "Pixel ix: " + ix);
                 }
                 // You are using RGBA that's why Config is ARGB.8888
                 Bitmap picture = Bitmap.createBitmap(colors, 0, width, width, height, Bitmap.Config.ARGB_8888);
-//                Bitmap picture = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-                // vector is your int[] of ARGB value .
-//                picture.copyPixelsFromBuffer(makeBuffer(colors, colors.length));
 
                 card.init(wid, picture);
             }
@@ -92,6 +87,11 @@ public class AsyncNetworkOutputToCard implements AsyncPhenotypeToUI<double[][], 
         }
         //oops, we don't have an activity--just return null
         return null;
+    }
+
+    private double clampZeroOne(double val)
+    {
+        return Math.max(0.0, Math.min(val,1.0));
     }
 
 

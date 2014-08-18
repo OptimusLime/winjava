@@ -9,8 +9,6 @@ import javax.inject.Inject;
 import bolts.Task;
 import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.ArtifactOffspringGenerator;
-import eplex.win.winBackbone.FinishedCallback;
-import iec.interfaces.ParentSelectionHandler;
 
 
 /**
