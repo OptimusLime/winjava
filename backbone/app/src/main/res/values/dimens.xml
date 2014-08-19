@@ -9,6 +9,15 @@
     <!-- Card -->
     <dimen name="card_base_empty_height">72dp</dimen>
     <dimen name="carddemo_extras_gplay_grid_columnwidth_card">125dp</dimen>
+    <dimen name="card_button_padding">1dp</dimen>
+
+    <dimen name="card_between_button_margin">2dp</dimen>
+    <dimen name="card_inner_button_width">100dp</dimen>
+    <dimen name="card_inner_button_height">100dp</dimen>
+
+    <dimen name="card_button_width">60dp</dimen>
+    <dimen name="card_button_height">60dp</dimen>
+    <dimen name="card_button_text_size">30sp</dimen>
 
     <!-- Grid -->
     <dimen name="carddemo_base_grid_columnwidth">140dp</dimen>

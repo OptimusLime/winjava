@@ -34,7 +34,7 @@ public class cuid
 
     static String pad(String num, int size)
     {
-        String s = "000000000" + num;
+        String s = "00000000000000000000" + num;
         return s.substring(s.length() - size);
     }
 
@@ -116,32 +116,67 @@ public class cuid
 
         return  (letter + timestamp + counter + fingerprint + random);
     }
+    public static Integer tryParse(String text) {
+        try {
+            return new Integer(text);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 
-    public static boolean isLessThan(String first, String second)
+    static long extractTimeStamp(String uuid)
     {
         //tease apart first, second to determine which ID came first
         //counter + fingerprint + random = 6 blocks of 4 = 24
         int dateEnd = 6*blockSize;
-        int counterEnd = 5*blockSize;
         int charStart = 1;
 
-        //convert the base-36 time string to base 10 number -- parseint handles this by sending in the original radix
-        int firstTime = Integer.parseInt(first.substring(charStart, first.length() - dateEnd), base);
-        //ditto for counter
-        int firstCounter = Integer.parseInt(first.substring(first.length() - dateEnd, first.length() - counterEnd), base);
-
-        //convert the base-36 time string to base 10 number -- parseint handles this by sending in the original radix
-        int secondTime =  Integer.parseInt(second.substring(charStart, second.length() - dateEnd), base);
-
-        //ditto for counter
-        int secondCounter = Integer.parseInt(second.substring(second.length() - dateEnd, second.length() - counterEnd), base);
-
-        //either the first time is less than the second time, and we answer this question immediately
-        //or the times are equal -- then we pull the lower counter
-        //techincially counters can wrap, but this won't happen very often AND this is all for measuring disjoint/excess behavior
-        //the time should be enough of an ordering principal for this not to matter
-        return firstTime < secondTime || (firstTime == secondTime && firstCounter < secondCounter);
+        return Long.parseLong(uuid.substring(charStart, uuid.length() - dateEnd), base);
     }
+
+    public static boolean isLessThan(String first, String second)
+    {
+        boolean isFirstCuid = first.charAt(0) == 'c';
+        boolean isSecondCuid = second.charAt(0) == 'c';
+
+        //both are not integers,  they're strings
+        if(isFirstCuid && isSecondCuid) {
+
+            //tease apart first, second to determine which ID came first
+            //counter + fingerprint + random = 6 blocks of 4 = 24
+            int dateEnd = 6 * blockSize;
+            int counterEnd = 5 * blockSize;
+
+            //convert the base-36 time string to base 10 number -- parseint handles this by sending in the original radix
+            long firstTime = extractTimeStamp(first);
+            //ditto for counter
+            int firstCounter = Integer.parseInt(first.substring(first.length() - dateEnd, first.length() - counterEnd), base);
+
+            //convert the base-36 time string to base 10 number -- parseint handles this by sending in the original radix
+            long secondTime = extractTimeStamp(second);
+
+            //ditto for counter
+            int secondCounter = Integer.parseInt(second.substring(second.length() - dateEnd, second.length() - counterEnd), base);
+
+            //either the first time is less than the second time, and we answer this question immediately
+            //or the times are equal -- then we pull the lower counter
+            //techincially counters can wrap, but this won't happen very often AND this is all for measuring disjoint/excess behavior
+            //the time should be enough of an ordering principal for this not to matter
+            return firstTime < secondTime || (firstTime == secondTime && firstCounter < secondCounter);
+        }
+        else //otherwise, 1 is a cuid and the other isnt, OR both are numbers -- easy conditional
+        {
+            //Grab the time for the first
+            long firstTime = isFirstCuid ? extractTimeStamp(first) : Long.parseLong(first);
+            //then get the id for the second
+            long secondTime = isSecondCuid ? extractTimeStamp(second) : Long.parseLong(second);
+
+            //all ready to check!
+            return firstTime < secondTime;
+        }
+    }
+
+
 
 }
 

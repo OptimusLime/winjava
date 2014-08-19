@@ -7,11 +7,15 @@ import java.util.concurrent.Callable;
 
 import asynchronous.interfaces.AsyncArtifactToPhenotype;
 import bolts.Task;
+import eplex.win.FastCPPNJava.network.CPPN;
+import eplex.win.FastNEATJava.decode.DecodeToFloatFastConcurrentNetwork;
+import eplex.win.FastNEATJava.genome.NeatGenome;
 import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.Genome;
 import win.eplex.backbone.Connection;
 import win.eplex.backbone.FakeArtifact;
 import win.eplex.backbone.FakeGenome;
+import win.eplex.backbone.NEATArtifact;
 import win.eplex.backbone.Node;
 
 /**
@@ -35,11 +39,13 @@ public class AsyncArtifactToCPPN implements AsyncArtifactToPhenotype<Artifact, d
         //let's convert our artifact object into a damn genome
         //then take that genome, and use it to build our outputs
 
-        Genome g = ((FakeArtifact)offspring).genome;
+        NeatGenome g = ((NEATArtifact)offspring).genome;
+
+        CPPN decoded = DecodeToFloatFastConcurrentNetwork.DecodeNeatGenomeToCPPN(g);
 
         //now convert our genome into a CPPN
-        List<Node> nodes = ((FakeGenome)g).nodes;
-        List<Connection> conns = ((FakeGenome)g).connections;
+//        List<Node> nodes = ((NEATArtifact)g).nodes;
+//        List<Connection> conns = ((NEATArtifact)g).connections;
 
         int width = 25;
         int height = 25;
@@ -55,19 +61,45 @@ public class AsyncArtifactToCPPN implements AsyncArtifactToPhenotype<Artifact, d
         int pixelCount = width*height;
 
         //now we have our outputs, hoo-ray!
-        double[][] fakeOutputs = new double[pixelCount][];
+        double[][] cppnOutputs = new double[pixelCount][];
 
-        double[] fakeRGB;
-        for(int i=0; i < pixelCount; i++)
-        {
-            fakeRGB = new double[3];
-            fakeRGB[0] = Math.random();
-            fakeRGB[1] = Math.random();
-            fakeRGB[2] = Math.random();
-            fakeOutputs[i] = fakeRGB;
+        double inSqrt2 = Math.sqrt(2);
+
+        int allX = width, allY = height;
+
+        double startX = -1, startY = -1;
+        double dx = 2.0/(allX-1), dy = 2.0/(allY-1);
+
+        double currentX = startX, currentY = startY;
+
+        double[] hsvPull;
+        double[] inputs;
+
+        int ix = 0;
+        for(int y=0; y < allY; y++) {
+
+            for (int x = 0; x < allX; x++) {
+
+                hsvPull = new double[3];
+
+                //just like in picbreeder!
+                currentX = ((x << 1) - width + 1.0) / width;
+                currentY = ((y << 1) - height + 1.0) / height;
+
+                inputs = new double[]{currentX, currentY, Math.sqrt(currentX*currentX + currentY*currentY)*inSqrt2};
+
+                decoded.clearSignals();
+                decoded.recursiveActivation(inputs);
+
+                hsvPull[0] = decoded.getOutputSignal(0);
+                hsvPull[1] = decoded.getOutputSignal(1);
+                hsvPull[2] = decoded.getOutputSignal(2);
+
+                cppnOutputs[ix++] = hsvPull;
+            }
         }
 
-        return fakeOutputs;
+        return cppnOutputs;
     }
 
 //    function runCPPNAcrossFixedSize(activationFunction, size)

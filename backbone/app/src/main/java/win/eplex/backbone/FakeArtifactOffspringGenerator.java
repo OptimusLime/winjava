@@ -12,6 +12,11 @@ import eplex.win.winBackbone.ArtifactOffspringGenerator;
  */
 public class FakeArtifactOffspringGenerator implements ArtifactOffspringGenerator {
 
+    @Override
+    public void clearSession() {
+
+    }
+
     public Artifact createArtifactFromParents(List<Artifact> parents)
     {
         if(parents.size() == 0)

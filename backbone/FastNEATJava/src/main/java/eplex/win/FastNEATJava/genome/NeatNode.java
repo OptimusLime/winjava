@@ -12,6 +12,7 @@ public class NeatNode {
     public NodeType type;
     public double layer;
     public int step = 0;
+    public double bias = 0.0;
 
     public NeatNode(String gid, String functionID, double layer, NodeType type) {
         this.gid = gid;

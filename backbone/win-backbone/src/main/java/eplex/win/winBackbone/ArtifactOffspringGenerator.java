@@ -11,4 +11,6 @@ import javax.inject.Provider;
 public interface ArtifactOffspringGenerator {
 
     Artifact createArtifactFromParents(List<Artifact> parents);
+    void clearSession();
+
 }

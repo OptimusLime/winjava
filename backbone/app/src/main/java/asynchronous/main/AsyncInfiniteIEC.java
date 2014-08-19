@@ -2,13 +2,17 @@ package asynchronous.main;
 
 import android.app.Activity;
 import android.util.Log;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nhaarman.listviewanimations.swinginadapters.AnimationAdapter;
+import com.nhaarman.listviewanimations.swinginadapters.prepared.AlphaInAnimationAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,6 +22,7 @@ import asynchronous.interfaces.AsyncInteractiveEvolution;
 import bolts.Continuation;
 import bolts.Task;
 import cardUI.EndlessGridScrollListener;
+import cardUI.cards.GridCard;
 import dagger.ObjectGraph;
 import eplex.win.winBackbone.Artifact;
 import it.gmariotti.cardslib.library.internal.Card;
@@ -40,7 +45,7 @@ public class AsyncInfiniteIEC {
     AsyncInteractiveEvolution evolution;
 
     @Inject
-    AsyncArtifactToUI<Artifact, double[][], Card> asyncArtifactToUIMapper;
+    AsyncArtifactToUI<Artifact, double[][], GridCard> asyncArtifactToUIMapper;
 
     Activity activity;
 
@@ -93,7 +98,8 @@ public class AsyncInfiniteIEC {
                 .continueWithTask(new Continuation<Void, Task<Void>>() {
                       @Override
                       public Task<Void> then(Task<Void> task) throws Exception {
-                          return asyncGetMoreCards(20);
+                          //start by fetching the minimal required for displaying -- 6/8 should do!
+                          return asyncGetMoreCards(6);
                       }
                   });
     }
@@ -126,9 +132,9 @@ public class AsyncInfiniteIEC {
 
             //asynch convert artifact to UI Card Object? ... Check!
             tasks.add(asyncArtifactToUIMapper.asyncConvertArtifactToUI(getActivity(), a, iecParams.get("ui"))
-                    .continueWith(new Continuation<Card, Void>() {
+                    .continueWith(new Continuation<GridCard, Void>() {
                         @Override
-                        public Void then(Task<Card> task) throws Exception {
+                        public Void then(Task<GridCard> task) throws Exception {
 
                             if(task.isCancelled())
                             {
@@ -143,7 +149,51 @@ public class AsyncInfiniteIEC {
                             //great success!
                             else
                             {
-                                Card c = task.getResult();
+                                GridCard c = task.getResult();
+
+                                c.setButtonHandler(new GridCard.GridCardButtonHandler() {
+                                    @Override
+                                    public boolean handleLike(String wid, boolean like) {
+
+                                        //here we handle likes -- that means we've selected a parent!
+                                        boolean weLikeObject = !like;
+
+                                        if(weLikeObject)
+                                        {
+                                            //select the new parent, please!
+                                            evolution.selectParents(Arrays.asList(wid));
+                                        }
+                                        else
+                                        {
+                                            //please remove this parent, we don't like them anymore :(
+                                            evolution.unselectParents(Arrays.asList(wid));
+                                        }
+
+                                        //toggle like after we're done!
+                                        return weLikeObject;
+                                    }
+
+                                    @Override
+                                    public void handlePublish(String wid) {
+                                        Toast.makeText(getActivity(), "We want to publish something!", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public boolean handleFavorite(String wid, boolean favorite) {
+
+                                        boolean weFavoriteObject = !favorite;
+
+                                        //we want to favorite this for the user!
+                                        Toast.makeText(getActivity(), weFavoriteObject ? "We like it!" : "We stopped liking it!", Toast.LENGTH_SHORT).show();
+
+                                        return weFavoriteObject;
+                                    }
+
+                                    @Override
+                                    public void handleInspect(String wid) {
+                                        Toast.makeText(getActivity(), "We want to inspect something!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
 
                                 if (c != null) {
                                     //add the card please!
@@ -175,7 +225,8 @@ public class AsyncInfiniteIEC {
 
         CardGridView listView = (CardGridView) getActivity().findViewById(R.id.carddemo_grid_base1);
         if (listView != null) {
-            listView.setAdapter(mCardArrayAdapter);
+//            listView.setAdapter(mCardArrayAdapter);
+            setAlphaAdapter(listView);
 
             //here we're going to set our scroll listener for creating more objects and appending them!
             mScrollListener = new EndlessGridScrollListener(listView);
@@ -190,13 +241,22 @@ public class AsyncInfiniteIEC {
 
                     //every time it's the same process -- generate artifacts, convert to phenotype, display!
                     //rinse and repeat
-                    asyncGetMoreCards(20);
+                    asyncGetMoreCards(4);
                 }
             });
 
             //make sure to add our infinite scroller here
             listView.setOnScrollListener(mScrollListener);
         }
+    }
+
+    /**
+     * Alpha animation
+     */
+    private void setAlphaAdapter(CardGridView gridView) {
+        AnimationAdapter animCardArrayAdapter = new AlphaInAnimationAdapter(mCardArrayAdapter);
+        animCardArrayAdapter.setAbsListView(gridView);
+        gridView.setExternalAdapter(animCardArrayAdapter, mCardArrayAdapter);
     }
 
 

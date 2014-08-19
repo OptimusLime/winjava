@@ -74,9 +74,9 @@ public class FakeArtifactToCard implements ArtifactToCard {
 
             int i = (int)Math.floor(Math.random()*Integer.MAX_VALUE);
 
-            card.headerTitle = "App example " + i;
-            card.secondaryTitle = "Some text here " + i;
-            card.rating = (float) (Math.random() * (5.0));
+//            card.headerTitle = "App example " + i;
+//            card.secondaryTitle = "Some text here " + i;
+//            card.rating = (float) (Math.random() * (5.0));
 
             //Only for test, change some icons
             if ((i % 6 == 0)) {
@@ -113,7 +113,8 @@ public class FakeArtifactToCard implements ArtifactToCard {
 
                 Bitmap picture = Bitmap.createBitmap(colors, 0, width, width, height, Bitmap.Config.ARGB_8888);
 
-                card.init("fakeWID", picture);
+                card.constructImage("fakeWID", picture);
+//                card.init("fakeWID", picture);
             }
             return card;
         }

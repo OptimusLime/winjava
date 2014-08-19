@@ -21,7 +21,15 @@ public class CPPNActivationFactory {
             return functionTable.get(functionID);
 
         try {
-            Class<?> clazz = Class.forName("eplex.win.FastCPPNJava.activation.functions" + functionID);
+
+            Class<?> clazz;
+
+            if(functionID.contains("."))
+                clazz = Class.forName(functionID);
+            else
+                clazz = Class.forName("eplex.win.FastCPPNJava.activation.functions." + functionID);
+
+//            Class<?> clazz = Class.forName("eplex.win.FastCPPNJava.activation.functions." + functionID);
             ActivationFunction aFunction = (ActivationFunction)clazz.newInstance();
 
             // For now the function ID is the name of a class that implements IActivationFunction.
@@ -71,7 +79,7 @@ public class CPPNActivationFactory {
 
     public static ActivationFunction getRandomActivationObject()
     {
-        if(probabilities.length == 0)
+        if(probabilities == null)
             defaultProbabilities();
 
         return functions.get(MathUtils.singleThrowArray(probabilities));
@@ -79,7 +87,7 @@ public class CPPNActivationFactory {
 
     public static String getRandomActivationFunction()
     {
-        if(probabilities.length == 0)
+        if(probabilities == null)
            defaultProbabilities();
 
         return functions.get(MathUtils.singleThrowArray(probabilities)).functionID();

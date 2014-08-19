@@ -31,6 +31,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/card_item_selector"
         >
 
         <it.gmariotti.cardslib.library.view.component.CardThumbnailView
@@ -41,17 +42,18 @@
             card:card_thumbnail_layout_resourceID="@layout/carddemo_grid_gplay_thumbnail_layout"
             android:layout_height="wrap_content"/>
 
-        <it.gmariotti.cardslib.library.view.component.CardHeaderView
-            style="@style/card.header_outer_layout"
-            android:id="@+id/card_header_layout"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <!--<it.gmariotti.cardslib.library.view.component.CardHeaderView-->
+            <!--style="@style/card.header_outer_layout"-->
+            <!--android:id="@+id/card_header_layout"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"/>-->
 
         <!-- Main Content View -->
         <FrameLayout
             android:id="@+id/card_main_content_layout"
             style="@style/Birth.card.content_outer_layout"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

@@ -43,9 +43,9 @@ public class AsyncFakeNetworkOutputToCard implements AsyncPhenotypeToUI<double[]
 
             int i = (int)Math.floor(Math.random()*Integer.MAX_VALUE);
 
-            card.headerTitle = "App example " + i;
-            card.secondaryTitle = "Some text here " + i;
-            card.rating = (float) (Math.random() * (5.0));
+//            card.headerTitle = "App example " + i;
+//            card.secondaryTitle = "Some text here " + i;
+//            card.rating = (float) (Math.random() * (5.0));
 
             //Only for test, change some icons
             if ((i % 6 == 0)) {
@@ -82,7 +82,8 @@ public class AsyncFakeNetworkOutputToCard implements AsyncPhenotypeToUI<double[]
                 //We punch in the numbers, shazam!
                 Bitmap picture = Bitmap.createBitmap(colors, 0, width, width, height, Bitmap.Config.ARGB_8888);
 
-                card.init(wid, picture);
+                card.constructImage(wid, picture);
+//                card.init(wid, picture);
             }
             return card;
         }

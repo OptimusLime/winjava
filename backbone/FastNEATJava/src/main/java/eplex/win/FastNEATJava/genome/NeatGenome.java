@@ -617,6 +617,11 @@ public class NeatGenome
 
     public NeatGenome cloneGenome()
     {
+        return NeatGenome.Copy(this, this.gid);
+    }
+
+    public NeatGenome cloneGenomeNewID()
+    {
         return NeatGenome.Copy(this, nextInnovationID());
     }
 

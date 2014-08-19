@@ -26,6 +26,8 @@ public abstract class AsyncInteractiveEvolution {
     @Inject
     public ArtifactOffspringGenerator offspringGenerator;
 
+    public abstract void clearSession();
+
     //Be able to adjust who the parents are all the time
     public abstract void selectParents(List<String> parentIDs);
     public abstract void unselectParents(List<String> parentIDs);

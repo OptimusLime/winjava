@@ -12,17 +12,30 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
+import PicbreederActivations.PBBipolarSigmoid;
+import PicbreederActivations.PBCos;
+import PicbreederActivations.PBGaussian;
+import PicbreederActivations.pbLinear;
 import asynchronous.main.AsyncInfiniteIEC;
 import asynchronous.modules.FakeAsyncLocalIECModule;
 import cardUI.cards.GridCard;
 import dagger.Module;
 import dagger.ObjectGraph;
+import eplex.win.FastCPPNJava.activation.CPPNActivationFactory;
+import eplex.win.FastCPPNJava.activation.functions.Sine;
+import eplex.win.FastNEATJava.utils.NeatParameters;
 import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.BasicEvolution;
 import eplex.win.winBackbone.FinishedCallback;
@@ -62,10 +75,45 @@ public class GridSquareFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        //no recurrent networks please!
+        NeatParameters np = new NeatParameters();
+        //set up the defaults here
+        np.pMutateAddConnection = .13;
+        np.pMutateAddNode = .12;
+        np.pMutateDeleteSimpleNeuron = .005;
+        np.pMutateDeleteConnection = .005;
+        np.pMutateConnectionWeights = .72;
+        np.pMutateChangeActivations = .02;
+        np.pNodeMutateActivationRate = 0.2;
+
+        np.connectionWeightRange = 3.0;
+        np.disallowRecurrence = true;
+
+        Map<String, Double> probs = new HashMap<String, Double>();
+        probs.put(PBBipolarSigmoid.class.getName(), .22);
+        probs.put(PBGaussian.class.getName(), .22);
+        probs.put(Sine.class.getName(), .22);
+        probs.put(PBCos.class.getName(), .22);
+        probs.put(pbLinear.class.getName(), .12);
+
+        //now we set up our probabilities of generating particular activation functions
+        CPPNActivationFactory.setProbabilities(probs);
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode jNode = mapper.createObjectNode();
+
+        ObjectNode uiParams = mapper.createObjectNode();
+
+        uiParams.set("width", mapper.convertValue(150, JsonNode.class));
+        uiParams.set("height", mapper.convertValue(150 , JsonNode.class));
+
+        jNode.set("ui", uiParams);
+
         if(graph == null)
         {
             //we need to inject our objects!
-            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule()).toArray());
+            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule(getActivity(), np)).toArray());
 
             //now inject ourselves! mwahahahahaha
             //a-rod loves this line
@@ -75,7 +123,7 @@ public class GridSquareFragment extends BaseFragment {
 
             //now we initialize everything! This can be an async task, if you want
             //those it's pretty simple on its own
-            asyncIEC.asyncInitializeIECandUI(null);
+            asyncIEC.asyncInitializeIECandUI(jNode);
         }
     }
 

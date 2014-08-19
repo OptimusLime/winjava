@@ -18,15 +18,10 @@
   ~  *****************************************************************************
   -->
 
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          android:exitFadeDuration="@android:integer/config_mediumAnimTime">
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_height="60dp"
-    >
-
-
-
-</RelativeLayout>
-
-
+    <item android:state_activated="true" android:drawable="@drawable/activated_background_item_card"/>
+    <item android:state_pressed="true" android:drawable="@drawable/pressed_background_item_card"/>
+    <item android:drawable="@drawable/card_item_background"/>
+</selector>

@@ -18,15 +18,7 @@
   ~  *****************************************************************************
   -->
 
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_height="60dp"
-    >
-
-
-
-</RelativeLayout>
-
-
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
+    <solid  android:color="#00FFFFFF"/>
+    <corners android:radius="10px"/>
+</shape>

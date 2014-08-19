@@ -51,8 +51,6 @@ public class CPPN {
     int[][] adjacentList;
     int[][] reverseAdjacentList;
 
-
-
     public CPPN(
             int biasNeuronCount,
             int inputNeuronCount,
@@ -144,6 +142,9 @@ public class CPPN {
             int rCount = rAdjCount[i];
             if(rCount > 0)
                 this.reverseAdjacentList[i] = new int[rCount];
+
+            //have to setup our weight matrix!
+            this.adjacentMatrix[i] = new double[totalNeuronCount];
         }
 
         adjCount = new int[totalNeuronCount];
@@ -186,7 +187,7 @@ public class CPPN {
             else if(i < totalInputNeuronCount)
             {
                 //set the signals here!
-                neuronSignals[i] = signalsMinusBias[this.biasNeuronCount];
+                neuronSignals[i] = signalsMinusBias[i - this.biasNeuronCount];
                 activated[i] = true;
             }
             else

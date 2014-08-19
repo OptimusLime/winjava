@@ -19,21 +19,21 @@ import win.eplex.backbone.R;
 /**
  * Created by paul on 8/14/14.
  */
-public class AsyncCPPNOutputToCard implements AsyncPhenotypeToUI<double[][], Card> {
+public class AsyncCPPNOutputToCard implements AsyncPhenotypeToUI<double[][], GridCard> {
 
     //need to know the activity for creating the UI
     @Override
-    public Task<Card> asyncPhenotypeToUI(final Activity a, final String wid, final double[][] phenotype, final JsonNode params) {
+    public Task<GridCard> asyncPhenotypeToUI(final Activity a, final String wid, final double[][] phenotype, final JsonNode params) {
 
-        return Task.callInBackground(new Callable<Card>() {
+        return Task.callInBackground(new Callable<GridCard>() {
             @Override
-            public Card call() throws Exception {
+            public GridCard call() throws Exception {
                 return convertArtifactToPhenotype(a, wid, phenotype, params);
             }
         });
     }
 
-    private Card convertArtifactToPhenotype(Activity activity, final String wid, double[][] results, final JsonNode params)
+    private GridCard convertArtifactToPhenotype(Activity activity, final String wid, double[][] results, final JsonNode params)
     {
         //now that we've got the juice, let's make ourselves useful, eh?
         //we should make a card with this info
@@ -44,22 +44,22 @@ public class AsyncCPPNOutputToCard implements AsyncPhenotypeToUI<double[][], Car
 
             int i = (int)Math.floor(Math.random()*Integer.MAX_VALUE);
 
-            card.headerTitle = "App example " + i;
-            card.secondaryTitle = "Some text here " + i;
-            card.rating = (float) (Math.random() * (5.0));
+//            card.headerTitle = "App example " + i;
+//            card.secondaryTitle = "Some text here " + i;
+//            card.rating = (float) (Math.random() * (5.0));
 
             //Only for test, change some icons
-            if ((i % 6 == 0)) {
-                card.resourceIdThumbnail = R.drawable.ic_ic_dh_bat;
-            } else if ((i % 6 == 1)) {
-                card.resourceIdThumbnail = R.drawable.ic_ic_dh_net;
-            } else if ((i % 6 == 2)) {
-                card.resourceIdThumbnail = R.drawable.ic_tris;
-            } else if ((i % 6 == 3)) {
-                card.resourceIdThumbnail = R.drawable.ic_info;
-            } else if ((i % 6 == 4)) {
-                card.resourceIdThumbnail = R.drawable.ic_smile;
-            }
+//            if ((i % 6 == 0)) {
+//                card.resourceIdThumbnail = R.drawable.ic_ic_dh_bat;
+//            } else if ((i % 6 == 1)) {
+//                card.resourceIdThumbnail = R.drawable.ic_ic_dh_net;
+//            } else if ((i % 6 == 2)) {
+//                card.resourceIdThumbnail = R.drawable.ic_tris;
+//            } else if ((i % 6 == 3)) {
+//                card.resourceIdThumbnail = R.drawable.ic_info;
+//            } else if ((i % 6 == 4)) {
+//                card.resourceIdThumbnail = R.drawable.ic_smile;
+//            }
 
 
             if(results.length > 0) {
@@ -81,7 +81,7 @@ public class AsyncCPPNOutputToCard implements AsyncPhenotypeToUI<double[][], Car
                 // You are using RGBA that's why Config is ARGB.8888
                 Bitmap picture = Bitmap.createBitmap(colors, 0, width, width, height, Bitmap.Config.ARGB_8888);
 
-                card.init(wid, picture);
+                card.constructImage(wid, picture);
             }
             return card;
         }

@@ -69,6 +69,28 @@ public class MathUtils
         throw new RuntimeException("MathUtils.SingleThrowEven() - invalid outcome.");
     }
 
+    public static int singleThrowCubeWeighted(int cnt)
+    {
+        double pTotal = 0;    // Total probability
+
+        //-----
+        for (int i = 0; i < cnt; i++)
+            pTotal += (i+1)*(i+1)*(i+1);
+
+        //----- Now throw the ball and return an integer indicating the outcome.
+        double throwValue = nextDouble() * pTotal;
+        double accumulator = 0;
+
+        for (int j = 0; j < cnt; j++) {
+
+            accumulator += (j+1)*(j+1)*(j+1);
+
+            if (throwValue <= accumulator)
+                return j;
+        }
+        throw new RuntimeException("MathUtils.singleThrowArray() - invalid outcome.");
+    }
+
     /// <summary>
     /// Performs a single thrown onto a roulette wheel where the wheel's space is unevenly divided.
     /// The probabilty that a segment will be selected is given by that segment's value in the 'probabilities'

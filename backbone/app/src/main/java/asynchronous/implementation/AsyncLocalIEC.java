@@ -166,4 +166,20 @@ public class AsyncLocalIEC extends AsyncInteractiveEvolution {
         //it could be different in other circumstances
         selectParents(Arrays.asList(seedObjects.get(randomSeedParentIx).wid()));
     }
+
+    @Override
+    public void clearSession() {
+
+        //clear out session info -- including selected parents
+
+        //remove all of our parents -- one at a time
+        while(parents.size() > 0) {
+
+            this.unselectParents(Arrays.asList(parents.get(0).wid()));
+            parents.remove(0);
+        }
+
+        //then clear out all our session info!
+       offspringGenerator.clearSession();
+    }
 }

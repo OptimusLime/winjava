@@ -1,23 +1,44 @@
 package asynchronous.implementation;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import android.content.res.AssetManager;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import PicbreederActivations.PBBipolarSigmoid;
+import PicbreederActivations.PBCos;
+import PicbreederActivations.PBGaussian;
+import PicbreederActivations.pbLinear;
 import asynchronous.interfaces.AsyncSeedLoader;
 import bolts.Task;
+import eplex.win.FastCPPNJava.activation.functions.NullFn;
+import eplex.win.FastCPPNJava.activation.functions.Sine;
+import eplex.win.FastCPPNJava.network.NodeType;
+import eplex.win.FastNEATJava.genome.NeatConnection;
+import eplex.win.FastNEATJava.genome.NeatGenome;
+import eplex.win.FastNEATJava.genome.NeatNode;
+import eplex.win.FastNEATJava.utils.cuid;
 import eplex.win.winBackbone.Artifact;
 import win.eplex.backbone.Connection;
 import win.eplex.backbone.FakeArtifact;
 import win.eplex.backbone.FakeGenome;
+import win.eplex.backbone.NEATArtifact;
 import win.eplex.backbone.Node;
 
 /**
  * Created by paul on 8/14/14.
  */
 public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
+
+    public AssetManager assetManager;
+
     @Override
     public Task<List<Artifact>> asyncLoadSeeds(JsonNode params) {
 
@@ -26,7 +47,7 @@ public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
         return Task.callInBackground(new Callable<List<Artifact>>() {
             @Override
             public List<Artifact> call() throws Exception {
-                return fakeSeeds();
+                return seedsFromFile();
             }
         });
     }
@@ -88,6 +109,142 @@ public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
         }
 
         return seeds;
+    }
+
+
+    List<Artifact> seedsFromFile()
+    {
+        ArrayList<Artifact> seeds =  new ArrayList<Artifact>();
+
+        Artifact a = loadSeed("seeds/basicSeed.json");
+
+        seeds.add(a);
+
+        return seeds;
+    }
+
+    static String activationToClassName(String actFun)
+    {
+        if(actFun.equals(pbLinear.class.getSimpleName()))
+        {
+            return pbLinear.class.getName();
+        }
+        else if(actFun.equals(PBBipolarSigmoid.class.getSimpleName()))
+        {
+            return PBBipolarSigmoid.class.getName();
+        }
+        else if(actFun.equals(PBGaussian.class.getSimpleName())) {
+            return PBGaussian.class.getName();
+        }
+        else if(actFun.equals(PBCos.class.getSimpleName())) {
+            return PBCos.class.getName();
+        }
+        else if(actFun.equals(Sine.class.getSimpleName())) {
+            return Sine.class.getName();
+        }
+        else
+            throw new RuntimeException("Unknown Activation Function in seed loading");
+    }
+
+    Artifact loadSeed(String fileName)
+    {
+        ObjectMapper mapper = new ObjectMapper();
+
+        NEATArtifact loadedArtifact = null;
+
+        try
+        {
+
+            InputStream fileStream = assetManager.open(fileName);
+            //loading the seed from file first
+            JsonNode loadedSeed = mapper.readTree(fileStream);
+
+            //we pull the seed identifier as our identifier
+            int id = loadedSeed.get("seedID").asInt();
+
+            //now that we have the seed, we go through and pull the info!
+            JsonNode genome = loadedSeed.get("genome");
+
+            //we grab our nodes, and connections
+            JsonNode nodes = genome.get("nodes");
+            JsonNode connections = genome.get("connections");
+
+
+            loadedArtifact = new NEATArtifact();
+
+
+
+            int inCount = 0;
+            int outCount = 0;
+            List<NeatNode> artifactNodes = new ArrayList<NeatNode>();
+            //loop through nodes first
+            for(JsonNode node : nodes)
+            {
+
+                NeatNode nn;
+
+                String clazz = activationToClassName(node.get("activationFunction").asText());
+//                String clazz = node.get("activationFunction").asText();
+//
+//                try {
+//                    //test if the class exists in the default CPPN activation function package
+//                    Class.forName(NullFn.class.getPackage().getName() + "." + clazz);
+//                } catch( ClassNotFoundException e ) {
+//                    //my class isn't there!
+//                    //it's our custom class for these activation functions
+//                    clazz = pbLinear.class.getPackage().getName() + "." + node.get("activationFunction").asText();
+//                }
+
+                nn = new NeatNode(
+                        node.get("gid").asText(),
+                        //though we use pblinear here, it's really only important that we target a sing
+                        clazz,
+                        node.get("layer").asDouble(),
+                        NodeType.valueOf(node.get("nodeType").asText().toLowerCase()));
+
+                nn.bias = node.get("bias").asDouble();
+
+                if(nn.type == NodeType.input)
+                    inCount++;
+
+                if(nn.type == NodeType.output)
+                    outCount++;
+
+                artifactNodes.add(nn);
+            }
+
+            List<NeatConnection> artifactConnections = new ArrayList<NeatConnection>();
+            for(JsonNode conn : connections)
+            {
+                NeatConnection nc = new NeatConnection(
+                        conn.get("gid").asText(),
+                        conn.get("weight").asDouble(),
+                        conn.get("sourceID").asText(),
+                        conn.get("targetID").asText()
+                );
+                artifactConnections.add(nc);
+            }
+
+
+            loadedArtifact.genome = new NeatGenome(
+                    cuid.getInstance().generate(id),
+                    artifactNodes,
+                    artifactConnections,
+                    inCount,
+                    outCount
+                    );
+
+            //all done!
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return loadedArtifact;
+
+
     }
 
 }

@@ -1,5 +1,7 @@
 package asynchronous.modules;
 
+import android.app.Activity;
+
 import asynchronous.implementation.AsyncArtifactToCard;
 import asynchronous.implementation.AsyncLocalIEC;
 import asynchronous.implementation.AsyncLocalRandomSeedLoader;
@@ -10,10 +12,12 @@ import asynchronous.interfaces.AsyncInteractiveEvolution;
 import asynchronous.interfaces.AsyncPhenotypeToUI;
 import asynchronous.interfaces.AsyncSeedLoader;
 import asynchronous.main.AsyncInfiniteIEC;
+import cardUI.cards.GridCard;
 import cppn.implementations.AsyncArtifactToCPPN;
 import cppn.implementations.AsyncCPPNOutputToCard;
 import dagger.Module;
 import dagger.Provides;
+import eplex.win.FastNEATJava.utils.NeatParameters;
 import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.ArtifactOffspringGenerator;
 import it.gmariotti.cardslib.library.internal.Card;
@@ -30,6 +34,15 @@ import it.gmariotti.cardslib.library.internal.Card;
 )
 public class FakeAsyncLocalIECModule {
 
+    Activity activity;
+    NeatParameters np;
+    public FakeAsyncLocalIECModule(Activity activity, NeatParameters np)
+    {
+        this.np = np;
+        this.activity = activity;
+    }
+    FakeAsyncLocalIECModule(){}
+
     //Handle async infinite injections
     //AsyncInfiniteIEC.class
     @Provides
@@ -38,7 +51,7 @@ public class FakeAsyncLocalIECModule {
     }
 
     @Provides
-    public AsyncArtifactToUI<Artifact, double[][], Card> provideAsyncArtifactToCard(){
+    public AsyncArtifactToUI<Artifact, double[][], GridCard> provideAsyncArtifactToCard(){
         return new AsyncArtifactToCard();
     }
 
@@ -47,14 +60,19 @@ public class FakeAsyncLocalIECModule {
     //and also an offspring generator, to merege objects
     @Provides
     public AsyncSeedLoader provideAsyncSeedLoading(){
-        return new AsyncLocalRandomSeedLoader();
+        AsyncLocalRandomSeedLoader seedLoader = new AsyncLocalRandomSeedLoader();
+
+        //pull the asset manager from our set (I hope) activity
+        seedLoader.assetManager = activity.getAssets();
+
+        return seedLoader;
     }
 
     //offspring generator handles taking in a collection of artifact parents,
     //handling any unusual artifact generation logic, then returning the children
     @Provides
     public ArtifactOffspringGenerator provideOffspringGenerator() {
-        return new SyncLocalOffspringGenerator();
+        return new SyncLocalOffspringGenerator(this.np);
     }
 
 
@@ -67,7 +85,7 @@ public class FakeAsyncLocalIECModule {
     }
 
     @Provides
-    public AsyncPhenotypeToUI<double[][], Card> providePhenotypeToUIConverter(){
+    public AsyncPhenotypeToUI<double[][], GridCard> providePhenotypeToUIConverter(){
         return new AsyncCPPNOutputToCard();
     }
 }

@@ -1,11 +1,18 @@
 package cardUI.cards;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.text.Html;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,32 +32,30 @@ public class GridCard extends Card {
     public int resourceIdThumbnail = -1;
     protected int count;
 
-    public String headerTitle;
-    public String secondaryTitle;
-    public float rating;
+    boolean isLiked;
+    boolean isFavorited;
 
-    public GridCard(Context context) {
-        super(context, R.layout.carddemo_gplay_inner_content);
+    GestureDetector gestureDetector;
+
+    Activity activity;
+    GplayGridThumb thumbnail;
+    String wid;
+    GridCardButtonHandler buttonHandler;
+
+    public GridCard(Activity activity) {
+        super(activity, R.layout.card_inner_buttons);
+        this.activity = activity;
     }
 
-    public GridCard(Context context, int innerLayout) {
-        super(context, innerLayout);
+    public GridCard(Activity activity, int innerLayout) {
+        super(activity, innerLayout);
+        this.activity = activity;
     }
 
-    public void init(String wid, Bitmap bitThumb) {
-        CardHeader header = new CardHeader(getContext());
-        header.setButtonOverflowVisible(true);
-        header.setTitle(headerTitle);
-        header.setPopupMenu(R.menu.popupmain, new CardHeader.OnClickCardHeaderPopupMenuListener() {
-            @Override
-            public void onMenuItemClick(BaseCard card, MenuItem item) {
-                Toast.makeText(getContext(), "Item " + item.getTitle(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        addCardHeader(header);
-
-        GplayGridThumb thumbnail = new GplayGridThumb(getContext(), wid, bitThumb);
+    public void constructImage(String wid, Bitmap bitThumb)
+    {
+        thumbnail = new GplayGridThumb(getContext(), wid, bitThumb);
+        this.wid = wid;
 
 //        if (resourceIdThumbnail > -1)
 //            thumbnail.setDrawableResource(resourceIdThumbnail);
@@ -58,6 +63,29 @@ public class GridCard extends Card {
 //            thumbnail.setDrawableResource(R.drawable.ic_ic_launcher_web);
 
         addCardThumbnail(thumbnail);
+
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                gestureDetector = new GestureDetector(getContext(), new GestureListener(new DoubleTapHandler() {
+                    @Override
+                    public void handleDoubleTap() {
+                        onLikeButtonPressed();
+                    }
+                }));
+
+                //Set a clickListener on Thumbnail area -- watch for double tap!
+                thumbnail.setGestureDetector(gestureDetector);
+            }
+        });
+
+
+
+
+
+    }
+    public void setButtonHandler(GridCardButtonHandler buttonHandler) {
+
+        this.buttonHandler = buttonHandler;
 
         setOnClickListener(new OnCardClickListener() {
             @Override
@@ -67,24 +95,149 @@ public class GridCard extends Card {
         });
     }
 
+    private interface DoubleTapHandler
+    {
+        void handleDoubleTap();
+    }
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+
+        DoubleTapHandler doubleTapHandler;
+        public GestureListener(DoubleTapHandler doubleTapHandler)
+        {
+            this.doubleTapHandler = doubleTapHandler;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        // event when double tap occurs
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+
+            if(this.doubleTapHandler != null)
+                this.doubleTapHandler.handleDoubleTap();
+
+            return true;
+        }
+    }
+
+    void onLikeButtonPressed()
+    {
+        //we should process the like!
+        if(buttonHandler != null)
+        {
+            //we send out to our button handler
+            isLiked = buttonHandler.handleLike(wid, isLiked);
+        }
+
+       setLikeButton();
+    }
+    void setLikeButton()
+    {
+        Button like = (Button)this.mCardView.findViewById(R.id.card_button_like);
+        if(isLiked)
+            like.setText("\uE815");
+        else
+            like.setText("\uE814");
+    }
+
+    void setFavoriteButton()
+    {
+        Button fav = (Button)this.mCardView.findViewById(R.id.card_button_favorite);
+        if(isFavorited)
+            fav.setText("\uE812");
+        else
+            fav.setText("\uE813");
+    }
+
     @Override
     public void setupInnerViewElements(ViewGroup parent, View view) {
 
-        TextView title = (TextView) view.findViewById(R.id.carddemo_gplay_main_inner_title);
-        title.setText("FREE");
+        Typeface typeFace= Typeface.createFromAsset(getContext().getAssets(), "fonts/android.ttf");
 
-        TextView subtitle = (TextView) view.findViewById(R.id.carddemo_gplay_main_inner_subtitle);
-        subtitle.setText(secondaryTitle);
+        Button myTextView=(Button)view.findViewById(R.id.card_button_like);
+        myTextView.setTypeface(typeFace);
+        setLikeButton();
+        myTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-        RatingBar mRatingBar = (RatingBar) parent.findViewById(R.id.carddemo_gplay_main_inner_ratingBar);
+                onLikeButtonPressed();
+            }
+        });
 
-        mRatingBar.setNumStars(5);
-        mRatingBar.setMax(5);
-        mRatingBar.setStepSize(0.5f);
-        mRatingBar.setRating(rating);
+        myTextView=(Button)view.findViewById(R.id.card_button_favorite);
+        myTextView.setTypeface(typeFace);
+        setFavoriteButton();
+        myTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //we should process the like!
+                if(buttonHandler != null)
+                {
+                    //we send out to our button handler
+                    isFavorited = buttonHandler.handleFavorite(wid, isFavorited);
+                }
+
+                setFavoriteButton();
+            }
+        });
+
+        myTextView=(Button)view.findViewById(R.id.card_button_inspect);
+        myTextView.setTypeface(typeFace);
+        myTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //we should process the like!
+                if(buttonHandler != null)
+                {
+                    //we send out to our button handler
+                    buttonHandler.handleInspect(wid);
+                }
+
+//                Button inspect = (Button)view.findViewById(R.id.card_button_inspect);
+
+            }
+        });
+
+        myTextView=(Button)view.findViewById(R.id.card_button_publish);
+        myTextView.setTypeface(typeFace);
+        myTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //we should process the like!
+                if(buttonHandler != null)
+                {
+                    //we send out to our button handler
+                    buttonHandler.handlePublish(wid);
+                }
+
+//                Button inspect = (Button)view.findViewById(R.id.card_button_publish);
+
+            }
+        });
+
+
+
+
+    }
+
+    public interface GridCardButtonHandler
+    {
+        boolean handleLike(String wid, boolean like);
+        void handlePublish(String wid);
+        boolean handleFavorite(String wid, boolean favorite);
+        void handleInspect(String wid);
     }
 
     class GplayGridThumb extends CardThumbnail {
+
+        GestureDetector gestureDetector;
 
         public GplayGridThumb(final Context context, final String wid, final Bitmap b) {
             super(context);
@@ -96,8 +249,6 @@ public class GridCard extends Card {
 
                 @Override
                 public Bitmap getBitmap() {
-//                    Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_ic_launcher_web);
-//                    return largeIcon;
                     return b;
                 }
             });
@@ -106,9 +257,24 @@ public class GridCard extends Card {
 
         @Override
         public void setupInnerViewElements(ViewGroup parent, View viewImage) {
+
+            viewImage.getLayoutParams().width = (int)viewImage.getResources().getDimension(R.dimen.carddemo_gplay_grid_columnwidth);
+            viewImage.getLayoutParams().height = (int)viewImage.getResources().getDimension(R.dimen.carddemo_gplay_grid_columnwidth);
+
+           viewImage.setOnTouchListener(new View.OnTouchListener() {
+               @Override
+               public boolean onTouch(View view, MotionEvent motionEvent) {
+                   return gestureDetector.onTouchEvent(motionEvent);
+               }
+           });
             //viewImage.getLayoutParams().width = 196;
             //viewImage.getLayoutParams().height = 196;
 
+        }
+
+        public void setGestureDetector(GestureDetector gestureDetector) {
+
+            this.gestureDetector = gestureDetector;
         }
     }
 
