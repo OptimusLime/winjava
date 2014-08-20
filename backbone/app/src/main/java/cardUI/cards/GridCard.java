@@ -41,6 +41,7 @@ public class GridCard extends Card {
     GplayGridThumb thumbnail;
     public String wid;
     GridCardButtonHandler buttonHandler;
+    Bitmap internalBitmap;
 
     public GridCard(Activity activity) {
         super(activity, R.layout.card_inner_buttons);
@@ -52,9 +53,14 @@ public class GridCard extends Card {
         this.activity = activity;
     }
 
+    public Bitmap getThumbnailBitmap()
+    {
+        return internalBitmap;
+    }
     public void constructImage(String wid, Bitmap bitThumb)
     {
         thumbnail = new GplayGridThumb(getContext(), wid, bitThumb);
+        internalBitmap = bitThumb;
         this.wid = wid;
 
 //        if (resourceIdThumbnail > -1)

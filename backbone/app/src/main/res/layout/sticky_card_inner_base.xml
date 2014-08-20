@@ -19,7 +19,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+              android:orientation="horizontal"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content">
 
@@ -35,5 +35,11 @@
         android:id="@+id/sticky_card_color_inner_simple_title"
         style="@style/card.base_simple_title"
         android:textColor="@android:color/black"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sticky_card_image_list"/>
 
 </LinearLayout>

@@ -19,10 +19,16 @@
 package cardUI.cards;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import win.eplex.backbone.R;
@@ -38,6 +44,7 @@ public class StickyHeaderCard extends Card {
     protected int count;
 
     TextView mTitleView;
+    LinearLayout mImageLayout;
 
     public StickyHeaderCard(Context context) {
         this(context, R.layout.sticky_card_inner_base);
@@ -70,6 +77,8 @@ public class StickyHeaderCard extends Card {
 
         mTitleView = title;
 
+        mImageLayout = (LinearLayout)parent.findViewById(R.id.sticky_card_image_list);
+
     }
 
 
@@ -82,6 +91,25 @@ public class StickyHeaderCard extends Card {
 
         if(mTitleView != null && title!=null)
             mTitleView.setText(title);
+    }
+
+    public void setParents(List<Bitmap> bitmapImages)
+    {
+        if(mImageLayout == null)
+            return;
+
+        //pull out the children views, we're going to replace them!
+        mImageLayout.removeAllViews();
+
+        LayoutInflater mInflator = LayoutInflater.from(getContext());
+
+        //inflate our collection of parents please!
+        for(Bitmap circleParent : bitmapImages) {
+            ImageView view = (ImageView) mInflator.inflate(R.layout.stick_card_header_circle_bitmap, null);
+            view.setImageBitmap(circleParent);
+            mImageLayout.addView(view);
+        }
+
     }
 
     public int getCount() {

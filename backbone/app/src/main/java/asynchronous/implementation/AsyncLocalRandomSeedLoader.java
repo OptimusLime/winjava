@@ -169,9 +169,7 @@ public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
             JsonNode nodes = genome.get("nodes");
             JsonNode connections = genome.get("connections");
 
-
             loadedArtifact = new NEATArtifact();
-
 
 
             int inCount = 0;
@@ -225,14 +223,45 @@ public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
                 artifactConnections.add(nc);
             }
 
-
             loadedArtifact.genome = new NeatGenome(
-                    cuid.getInstance().generate(id),
+                    cuid.getInstance().generate(),
                     artifactNodes,
                     artifactConnections,
                     inCount,
                     outCount
-                    );
+            );
+
+            //check our genome to see if it was seeded or not
+            JsonNode gParents = genome.get("parents");
+
+            if(gParents == null)
+                //no parents! We're the seed derrrr
+                loadedArtifact.genome.parents = (new ArrayList<String>());
+            else
+            {
+                List<String> pars = new ArrayList<String>();
+                for(JsonNode p : gParents)
+                    pars.add(p.asText());
+                loadedArtifact.genome.parents = pars;
+            }
+
+            //set our own wid for the seed, thanks!
+            loadedArtifact.setWID(cuid.getInstance().generate(id));
+
+
+            //now check for artifact level parents
+            JsonNode parents = loadedSeed.get("parents");
+
+            if(parents == null)
+                //no parents! We're the seed derrrr
+                loadedArtifact.setParents(new ArrayList<String>());
+            else
+            {
+                List<String> pars = new ArrayList<String>();
+                for(JsonNode p : parents)
+                    pars.add(p.asText());
+                loadedArtifact.setParents(pars);
+            }
 
             //all done!
 

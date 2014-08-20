@@ -1,6 +1,12 @@
 package asynchronous.main;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.util.Log;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -13,11 +19,14 @@ import com.nhaarman.listviewanimations.swinginadapters.prepared.AlphaInAnimation
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import asynchronous.interfaces.AsyncArtifactToUI;
+import asynchronous.interfaces.AsyncFetchBitmaps;
 import asynchronous.interfaces.AsyncInteractiveEvolution;
 import bolts.Continuation;
 import bolts.Task;
@@ -27,6 +36,7 @@ import cardUI.StickyCardGridView;
 import cardUI.cards.GridCard;
 import dagger.ObjectGraph;
 import eplex.win.winBackbone.Artifact;
+import interfaces.PhenotypeCache;
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardGridArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardGridView;
@@ -36,7 +46,7 @@ import win.eplex.backbone.R;
 /**
  * Created by paul on 8/14/14.
  */
-public class AsyncInfiniteIEC {
+public class AsyncInfiniteIEC implements GridCard.GridCardButtonHandler, AsyncFetchBitmaps {
 
     JsonNode iecParams;
 
@@ -48,6 +58,14 @@ public class AsyncInfiniteIEC {
 
     @Inject
     AsyncArtifactToUI<Artifact, double[][], GridCard> asyncArtifactToUIMapper;
+
+    @Inject
+    PhenotypeCache<Bitmap> parentBitmapCache;
+
+    @Inject
+    PhenotypeCache<GridCard> gridCardCache;
+
+    Map<String, Artifact> allArtifactMap = new HashMap<String, Artifact>();
 
     Activity activity;
 
@@ -89,6 +107,13 @@ public class AsyncInfiniteIEC {
 
             jNode.set("ui", uiParams);
 
+            ObjectNode uiParParams = mapper.createObjectNode();
+
+            uiParams.set("width", mapper.convertValue(25, JsonNode.class));
+            uiParams.set("height", mapper.convertValue(25 , JsonNode.class));
+
+            jNode.set("parents", uiParParams);
+
             iecParams = jNode;
         }
 
@@ -100,6 +125,11 @@ public class AsyncInfiniteIEC {
                 .continueWithTask(new Continuation<Void, Task<Void>>() {
                       @Override
                       public Task<Void> then(Task<Void> task) throws Exception {
+
+                          List<Artifact> allSeeds  = evolution.seeds();
+                          for(Artifact seed : allSeeds)
+                              allArtifactMap.put(seed.wid(), seed);
+
                           //start by fetching the minimal required for displaying -- 6/8 should do!
                           return asyncGetMoreCards(6);
                       }
@@ -121,16 +151,18 @@ public class AsyncInfiniteIEC {
         //create a bunch of children object, wouldn't you please?
         List<Artifact> offspring = evolution.createOffspring(count);
 
-
         //we're going to do a bunch of async conversions between artifacts and UI objects
         //that's the process of converting a genome into a phenotype into a UI object
         ArrayList<Task<Void>> tasks = new ArrayList<Task<Void>>();
+
+        final GridCard.GridCardButtonHandler self = this;
 
         //now that we have our offspring, we go about our real businazzzz
         //lets make some cards ... biatch!
         for(Artifact a : offspring)
         {
             //artifact? ... check!
+            allArtifactMap.put(a.wid(), a);
 
             //asynch convert artifact to UI Card Object? ... Check!
             tasks.add(asyncArtifactToUIMapper.asyncConvertArtifactToUI(getActivity(), a, iecParams.get("ui"))
@@ -151,55 +183,23 @@ public class AsyncInfiniteIEC {
                             //great success!
                             else
                             {
-                                GridCard c = task.getResult();
-
-                                c.setButtonHandler(new GridCard.GridCardButtonHandler() {
-                                    @Override
-                                    public boolean handleLike(String wid, boolean like) {
-
-                                        //here we handle likes -- that means we've selected a parent!
-                                        boolean weLikeObject = !like;
-
-                                        if(weLikeObject)
-                                        {
-                                            //select the new parent, please!
-                                            evolution.selectParents(Arrays.asList(wid));
-                                        }
-                                        else
-                                        {
-                                            //please remove this parent, we don't like them anymore :(
-                                            evolution.unselectParents(Arrays.asList(wid));
-                                        }
-
-                                        //toggle like after we're done!
-                                        return weLikeObject;
-                                    }
-
-                                    @Override
-                                    public void handlePublish(String wid) {
-                                        Toast.makeText(getActivity(), "We want to publish something!", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                    @Override
-                                    public boolean handleFavorite(String wid, boolean favorite) {
-
-                                        boolean weFavoriteObject = !favorite;
-
-                                        //we want to favorite this for the user!
-                                        Toast.makeText(getActivity(), weFavoriteObject ? "We like it!" : "We stopped liking it!", Toast.LENGTH_SHORT).show();
-
-                                        return weFavoriteObject;
-                                    }
-
-                                    @Override
-                                    public void handleInspect(String wid) {
-                                        Toast.makeText(getActivity(), "We want to inspect something!", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                final GridCard c = task.getResult();
 
                                 if (c != null) {
-                                    //add the card please!
-                                    mCardArrayAdapter.add(c);
+
+                                    gridCardCache.cachePhenotype(c.wid, c);
+                                    c.setButtonHandler(self);
+
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+                                            //add the card please!
+                                            mCardArrayAdapter.add(c);
+                                        }
+                                    });
+
+
                                 }
                             }
 
@@ -224,6 +224,8 @@ public class AsyncInfiniteIEC {
     void initializeUI()
     {
         mCardArrayAdapter = new StickyCardGridArrayAdapter(getActivity(), new ArrayList<Card>());
+
+        mCardArrayAdapter.setBitmapCacheAndFetch(this);
 
         StickyCardGridView listView = (StickyCardGridView) getActivity().findViewById(R.id.carddemo_grid_base1);
         if (listView != null) {
@@ -267,5 +269,163 @@ public class AsyncInfiniteIEC {
 //        gridView.setExternalAdapter(animCardArrayAdapter, mCardArrayAdapter);
     }
 
+    //get all our parents please!
+    @Override
+    public List<String> syncRetrieveParents(String wid) {
+        return allArtifactMap.get(wid).parents();
+    }
+
+    @Override
+    public Bitmap syncRetrieveBitmap(String wid) {
+        return parentBitmapCache.retrievePhenotype(wid);
+    }
+
+    @Override
+    public Task<Map<String, Bitmap>> asyncFetchParentBitmaps(List<String> parents) {
+
+        List<Task<Void>> promises = new ArrayList<Task<Void>>();
+
+        final Map<String, Bitmap> parentsToImages = new HashMap<String, Bitmap>();
+        for(String parent : parents)
+        {
+            Artifact a = allArtifactMap.get(parent);
+
+            promises.add(asyncArtifactToUIMapper.asyncConvertArtifactToUI(getActivity(), a, iecParams.get("parents"))
+                    .continueWith(new Continuation<GridCard, Void>() {
+                        @Override
+                        public Void then(Task<GridCard> task) throws Exception {
+
+                            if(task.isCancelled())
+                            {
+                                throw new RuntimeException("Converting object to UI was cancelled!");
+                            }
+                            else if(task.isFaulted())
+                            {
+//                                Toast.makeText(getActivity(), "Error creating card from Artifact", Toast.LENGTH_SHORT).show();
+                                Log.d("IEC: ArtifactToUIError", "Error creating UI from Artifact: " + task.getError().getMessage());
+                                throw task.getError();
+                            }
+                            //great success!
+                            else
+                            {
+                                GridCard gc = task.getResult();
+
+                                //convert to circular view
+                                Bitmap circular = getCircularBitmap(gc.getThumbnailBitmap());
+
+                                //grab the bitmap from our fetching process!
+                                parentsToImages.put(gc.wid, circular);
+
+                                //put in our cache for future retrieval!
+                                parentBitmapCache.cachePhenotype(gc.wid, circular);
+                            }
+                            return null;
+                        }
+                    }));
+        }
+
+        return Task.whenAll(promises)
+                .continueWith(new Continuation<Void, Map<String, Bitmap>>() {
+                    @Override
+                    public Map<String, Bitmap> then(Task<Void> task) throws Exception {
+                        //all done, return the parent ot bitmap mapping!
+                        return parentsToImages;
+                    }
+                });
+
+    }
+
+
+
+
+    @Override
+    public boolean handleLike(String wid, boolean like) {
+
+        //here we handle likes -- that means we've selected a parent!
+        boolean weLikeObject = !like;
+
+        if(weLikeObject)
+        {
+            //select the new parent, please!
+            evolution.selectParents(Arrays.asList(wid));
+
+
+            //cache the parent object bitmap!
+            GridCard gc =  gridCardCache.retrievePhenotype(wid);
+
+            //cache the parent's bitmap for future retrieval!
+            parentBitmapCache.cachePhenotype(gc.wid, getCircularBitmap(gc.getThumbnailBitmap()));
+        }
+        else
+        {
+            //please remove this parent, we don't like them anymore :(
+            evolution.unselectParents(Arrays.asList(wid));
+        }
+
+        //toggle like after we're done!
+        return weLikeObject;
+    }
+
+    /**
+     * This class takes a rectangular bitmap and gives a circular bitmap back.
+     * Can be used for profile pictures or other kind of images.
+     *
+     * @param rectangular bitmap
+     * @return circular bitmap
+     */
+    public Bitmap getCircularBitmap(Bitmap bitmap) {
+        Bitmap output = null;
+        if (bitmap != null) {
+
+            if (bitmap.getWidth() > bitmap.getHeight()) {
+                output = Bitmap.createBitmap(bitmap.getHeight(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+            } else {
+                output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getWidth(), Bitmap.Config.ARGB_8888);
+            }
+
+            Canvas canvas = new Canvas(output);
+
+            final int color = 0xff424242;
+            final Paint paint = new Paint();
+            final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+            float r = 0;
+
+            if (bitmap.getWidth() > bitmap.getHeight()) {
+                r = bitmap.getHeight() / 2;
+            } else {
+                r = bitmap.getWidth() / 2;
+            }
+
+            paint.setAntiAlias(true);
+            canvas.drawARGB(0, 0, 0, 0);
+            paint.setColor(color);
+            canvas.drawCircle(r, r, r, paint);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(bitmap, rect, rect, paint);
+        }
+        return output;
+    }
+
+    @Override
+    public void handlePublish(String wid) {
+        Toast.makeText(getActivity(), "We want to publish something!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean handleFavorite(String wid, boolean favorite) {
+
+        boolean weFavoriteObject = !favorite;
+
+        //we want to favorite this for the user!
+        Toast.makeText(getActivity(), weFavoriteObject ? "We like it!" : "We stopped liking it!", Toast.LENGTH_SHORT).show();
+
+        return weFavoriteObject;
+    }
+
+    @Override
+    public void handleInspect(String wid) {
+        Toast.makeText(getActivity(), "We want to inspect something!", Toast.LENGTH_SHORT).show();
+    }
 
 }

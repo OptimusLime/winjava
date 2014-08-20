@@ -91,6 +91,7 @@
     <orderEntry type="library" exported="" name="robospice-1.4.12" level="project" />
     <orderEntry type="library" exported="" name="javawriter-2.5.0" level="project" />
     <orderEntry type="module" module-name="FastNEATJava" exported="" />
+    <orderEntry type="module" module-name="FastCPPNJava" exported="" />
     <orderEntry type="module" module-name="win-backbone" exported="" />
   </component>
 </module>

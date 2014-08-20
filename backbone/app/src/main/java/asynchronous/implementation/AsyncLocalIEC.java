@@ -32,6 +32,11 @@ public class AsyncLocalIEC extends AsyncInteractiveEvolution {
     Map<String, Artifact> allEvolutionArtifacts = new HashMap<String, Artifact>();
     Map<String, Artifact> selectedParents = new HashMap<String, Artifact>();
 
+    @Override
+    public List<Artifact> seeds() {
+        return seedObjects;
+    }
+
     //Be able to adjust who the parents are all the time
     @Override
     public void selectParents(List<String> parentIDs){

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,10 +35,23 @@ public class FakeArtifact implements Artifact {
         this.wid = value;
     }
 
+    List<String> parents;
+
+    @Override
+    public List<String> parents() {
+        return parents;
+    }
+
+    public void setParents(List<String> parents)
+    {
+        this.parents = parents;
+    }
 
     @Override
     public Artifact clone() {
         FakeArtifact fa = new FakeArtifact();
+
+        fa.setParents(new ArrayList<String>(((this.parents))));
 
         //clone our own genome
         fa.genome = this.genome.clone();

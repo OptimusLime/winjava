@@ -1,20 +1,32 @@
 package cardUI;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleAdapter;
 import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleArrayAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import asynchronous.interfaces.AsyncArtifactToUI;
+import asynchronous.interfaces.AsyncFetchBitmaps;
+import bolts.Continuation;
+import bolts.Task;
 import cardUI.cards.GridCard;
 import cardUI.cards.StickyHeaderCard;
 import eplex.win.FastNEATJava.utils.cuid;
+import eplex.win.winBackbone.Artifact;
+import interfaces.PhenotypeCache;
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardGridArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardView;
@@ -28,6 +40,8 @@ public class StickyCardGridArrayAdapter extends CardGridArrayAdapter implements 
     boolean callingExternalAdapter = false;
     CardView.OnExpandListAnimatorListener mCardExpandListener;
     ListAdapter externalAdapter;
+
+    AsyncFetchBitmaps bitmapFetcher;
 
     public StickyCardGridArrayAdapter(Context context, List<Card> cards) {
         super(context, cards);
@@ -74,9 +88,9 @@ public class StickyCardGridArrayAdapter extends CardGridArrayAdapter implements 
         LayoutInflater mInflater = LayoutInflater.from(getContext());
 
         CardView cardView;
-        Card colorCard;
+        final StickyHeaderCard colorCard;
 
-        if(convertView == null) {
+        if (convertView == null) {
 
             View view = mInflater.inflate(R.layout.stick_card_header, null);
 
@@ -87,38 +101,74 @@ public class StickyCardGridArrayAdapter extends CardGridArrayAdapter implements 
             colorCard = new StickyHeaderCard(getContext());
             cardView.setCard(colorCard);
             convertView = view;
+        } else {
+            cardView = (CardView) convertView.findViewById(R.id.sticky_header_card_id);
+            colorCard = (StickyHeaderCard) cardView.getCard();
+        }
+
+        GridCard gc = (GridCard) getItem(position);
+
+        colorCard.setTitle("Parents : ");
+        colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
+
+        List<String> allParents = bitmapFetcher.syncRetrieveParents(gc.wid);
+
+        final List<Bitmap> bitmaps = new ArrayList<Bitmap>();
+
+        List<String> remaining = new ArrayList<String>();
+
+        for (String parentWID : allParents) {
+            Bitmap pCache = bitmapFetcher.syncRetrieveBitmap(parentWID);
+            if (pCache == null) {
+                remaining.add(parentWID);
+            }
+            else
+                bitmaps.add(pCache);
+        }
+        if (remaining.size() == 0)
+        {
+            //we ahve all the bitmaps! send them to our sticky color card
+            colorCard.setParents(bitmaps);
         }
         else
         {
-            cardView = (CardView) convertView.findViewById(R.id.sticky_header_card_id);
-            colorCard = cardView.getCard();
+            //otherwise, we need to async fetch some parent bitmaps -- then set them!
+            bitmapFetcher.asyncFetchParentBitmaps(remaining)
+                    .continueWith(new Continuation<Map<String, Bitmap>, Void>() {
+                        @Override
+                        public Void then(Task<Map<String, Bitmap>> task) throws Exception {
+                            //now we have our matches, let's grab the parent values
+                            if(task.isCancelled())
+                            {
+                                throw new RuntimeException("Converting object to UI was cancelled!");
+                            }
+                            else if(task.isFaulted())
+                            {
+                                Log.d("IEC: ArtifactToUIError", "Error creating UI from Artifact: " + task.getError().getMessage());
+                                throw task.getError();
+                            }
+                            //great success!
+                            else {
+                                Map<String, Bitmap> parentBitmaps = task.getResult();
+                                for (Bitmap parent : parentBitmaps.values())
+                                    bitmaps.add(parent);
+
+                                //all done, now send it along to our stikcy header
+                                colorCard.setParents(bitmaps);
+                            }
+
+                            return null;
+                        }
+                    });
         }
 
-        GridCard gc = (GridCard)getItem(position);
-
-        colorCard.setTitle("Header : " + gc.wid);
-
-        switch (position / 8) {
-            case 0:
-                colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
-                break;
-            case 1:
-                colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
-                break;
-            case 2:
-                colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
-                break;
-            case 3:
-                colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
-                break;
-            case 4:
-                colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
-                break;
-            default:
-                colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
-                break;
-        }
 
         return convertView;
+    }
+
+    public void setBitmapCacheAndFetch(AsyncFetchBitmaps bitmapFetcher) {
+
+      this.bitmapFetcher = bitmapFetcher;
+
     }
 }

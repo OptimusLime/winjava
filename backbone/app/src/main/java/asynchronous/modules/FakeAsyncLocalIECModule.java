@@ -1,6 +1,7 @@
 package asynchronous.modules;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 
 import asynchronous.implementation.AsyncArtifactToCard;
 import asynchronous.implementation.AsyncLocalIEC;
@@ -12,6 +13,7 @@ import asynchronous.interfaces.AsyncInteractiveEvolution;
 import asynchronous.interfaces.AsyncPhenotypeToUI;
 import asynchronous.interfaces.AsyncSeedLoader;
 import asynchronous.main.AsyncInfiniteIEC;
+import cache.implementations.LRUBitmapCache;
 import cardUI.cards.GridCard;
 import cppn.implementations.AsyncArtifactToCPPN;
 import cppn.implementations.AsyncCPPNOutputToCard;
@@ -20,6 +22,7 @@ import dagger.Provides;
 import eplex.win.FastNEATJava.utils.NeatParameters;
 import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.ArtifactOffspringGenerator;
+import interfaces.PhenotypeCache;
 import it.gmariotti.cardslib.library.internal.Card;
 
 /**
@@ -53,6 +56,18 @@ public class FakeAsyncLocalIECModule {
     @Provides
     public AsyncArtifactToUI<Artifact, double[][], GridCard> provideAsyncArtifactToCard(){
         return new AsyncArtifactToCard();
+    }
+
+    @Provides
+    public PhenotypeCache<Bitmap> provideBitmapCache()
+    {
+        return new LRUBitmapCache<Bitmap>(100);
+    }
+
+    @Provides
+    public PhenotypeCache<GridCard> provideGridCardCache()
+    {
+        return new LRUBitmapCache(100);
     }
 
     //Handle AsyncLocalIEC injections!

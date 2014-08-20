@@ -110,8 +110,17 @@ public class GridSquareFragment extends BaseFragment {
 
         uiParams.set("width", mapper.convertValue(width, JsonNode.class));
         uiParams.set("height", mapper.convertValue(height , JsonNode.class));
-
         jNode.set("ui", uiParams);
+
+        ObjectNode parentUIParams = mapper.createObjectNode();
+
+        int pWidth = (int)getActivity().getResources().getInteger(R.integer.cppn_parent_render_width);
+        int pHeight = (int)getActivity().getResources().getInteger(R.integer.cppn_parent_render_height);
+
+        parentUIParams.set("width", mapper.convertValue(pWidth, JsonNode.class));
+        parentUIParams.set("height", mapper.convertValue(pHeight , JsonNode.class));
+
+        jNode.set("parents", parentUIParams);
 
         if(graph == null)
         {
