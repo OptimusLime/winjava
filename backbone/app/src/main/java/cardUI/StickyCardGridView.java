@@ -174,4 +174,15 @@ public class StickyCardGridView extends StickyGridHeadersGridView implements Car
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        try {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+        catch (NullPointerException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
