@@ -258,8 +258,8 @@ public class GridCard extends Card {
         @Override
         public void setupInnerViewElements(ViewGroup parent, View viewImage) {
 
-            viewImage.getLayoutParams().width = (int)viewImage.getResources().getDimension(R.dimen.carddemo_gplay_grid_columnwidth);
-            viewImage.getLayoutParams().height = (int)viewImage.getResources().getDimension(R.dimen.carddemo_gplay_grid_columnwidth);
+            viewImage.getLayoutParams().width = (int)viewImage.getResources().getDimension(R.dimen.card_grid_render_width);
+            viewImage.getLayoutParams().height = (int)viewImage.getResources().getDimension(R.dimen.card_grid_render_height);
 
            viewImage.setOnTouchListener(new View.OnTouchListener() {
                @Override

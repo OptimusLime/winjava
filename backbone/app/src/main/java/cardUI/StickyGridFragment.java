@@ -1,28 +1,18 @@
 package cardUI;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.RatingBar;
 import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 import PicbreederActivations.PBBipolarSigmoid;
 import PicbreederActivations.PBCos;
@@ -30,24 +20,10 @@ import PicbreederActivations.PBGaussian;
 import PicbreederActivations.pbLinear;
 import asynchronous.main.AsyncInfiniteIEC;
 import asynchronous.modules.FakeAsyncLocalIECModule;
-import cardUI.cards.GridCard;
-import dagger.Module;
 import dagger.ObjectGraph;
 import eplex.win.FastCPPNJava.activation.CPPNActivationFactory;
 import eplex.win.FastCPPNJava.activation.functions.Sine;
 import eplex.win.FastNEATJava.utils.NeatParameters;
-import eplex.win.winBackbone.Artifact;
-import eplex.win.winBackbone.BasicEvolution;
-import eplex.win.winBackbone.FinishedCallback;
-import it.gmariotti.cardslib.library.internal.Card;
-import it.gmariotti.cardslib.library.internal.CardGridArrayAdapter;
-import it.gmariotti.cardslib.library.internal.CardHeader;
-import it.gmariotti.cardslib.library.internal.CardThumbnail;
-import it.gmariotti.cardslib.library.internal.base.BaseCard;
-import it.gmariotti.cardslib.library.view.CardGridView;
-import win.eplex.backbone.ArtifactCardCallback;
-import win.eplex.backbone.ArtifactToCard;
-import win.eplex.backbone.Modules.FakeArtifactModule;
 import win.eplex.backbone.R;
 
 /**
@@ -55,11 +31,16 @@ import win.eplex.backbone.R;
  *
  * @author Gabriele Mariotti (gabri.mariotti@gmail.com)
  */
-public class GridSquareFragment extends BaseFragment {
+public class StickyGridFragment extends BaseFragment {
 
     protected ScrollView mScrollView;
     private ObjectGraph graph;
     AsyncInfiniteIEC asyncIEC;
+
+    /**
+     * Default layout to apply to card
+     */
+    protected int list_card_layout_resourceID = R.layout.carddemo_grid_gplay;
 
     @Override
     public int getTitleResourceId() {
@@ -68,7 +49,7 @@ public class GridSquareFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.demo_fragment_grid_gplay, container, false);
+        return inflater.inflate(R.layout.sticky_grid_infinite_fragment, container, false);
     }
 
     @Override

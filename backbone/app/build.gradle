@@ -39,6 +39,10 @@ dependencies {
     compile 'fr.avianey:bolts-android-api:1.1.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.4.1.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.1.1'
+
+    //sticky grids for sticky header action
+    compile 'com.tonicartos:stickygridheaders:1.0.1'
+
     //Core card library
     compile 'com.github.gabrielemariotti.cards:library:1.8.0'
     //Extra card library, it is required only if you want to use integrations with other libraries

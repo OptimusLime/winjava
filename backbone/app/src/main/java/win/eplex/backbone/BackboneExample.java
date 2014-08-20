@@ -14,6 +14,7 @@ import android.os.Build;
 import javax.inject.Inject;
 
 import cardUI.GridSquareFragment;
+import cardUI.StickyGridFragment;
 import eplex.win.winBackbone.BasicEvolution;
 import eplex.win.winBackbone.winBackbone;
 
@@ -29,7 +30,7 @@ public class BackboneExample extends Activity {
         setContentView(R.layout.activity_backbone_example);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new GridSquareFragment())
+                    .add(R.id.container, new StickyGridFragment())
                     .commit();
         }
     }

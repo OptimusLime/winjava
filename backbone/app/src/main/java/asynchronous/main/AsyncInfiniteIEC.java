@@ -22,6 +22,8 @@ import asynchronous.interfaces.AsyncInteractiveEvolution;
 import bolts.Continuation;
 import bolts.Task;
 import cardUI.EndlessGridScrollListener;
+import cardUI.StickyCardGridArrayAdapter;
+import cardUI.StickyCardGridView;
 import cardUI.cards.GridCard;
 import dagger.ObjectGraph;
 import eplex.win.winBackbone.Artifact;
@@ -38,7 +40,7 @@ public class AsyncInfiniteIEC {
 
     JsonNode iecParams;
 
-    CardGridArrayAdapter mCardArrayAdapter;
+    StickyCardGridArrayAdapter mCardArrayAdapter;
     EndlessGridScrollListener mScrollListener;
 
     @Inject
@@ -221,12 +223,13 @@ public class AsyncInfiniteIEC {
 
     void initializeUI()
     {
-        mCardArrayAdapter = new CardGridArrayAdapter(getActivity(), new ArrayList<Card>());
+        mCardArrayAdapter = new StickyCardGridArrayAdapter(getActivity(), new ArrayList<Card>());
 
-        CardGridView listView = (CardGridView) getActivity().findViewById(R.id.carddemo_grid_base1);
+        StickyCardGridView listView = (StickyCardGridView) getActivity().findViewById(R.id.carddemo_grid_base1);
         if (listView != null) {
 //            listView.setAdapter(mCardArrayAdapter);
             setAlphaAdapter(listView);
+//            listView.setAdapter(mCardArrayAdapter);
 
             //here we're going to set our scroll listener for creating more objects and appending them!
             mScrollListener = new EndlessGridScrollListener(listView);
@@ -253,10 +256,15 @@ public class AsyncInfiniteIEC {
     /**
      * Alpha animation
      */
-    private void setAlphaAdapter(CardGridView gridView) {
+    private void setAlphaAdapter(StickyCardGridView gridView) {
         AnimationAdapter animCardArrayAdapter = new AlphaInAnimationAdapter(mCardArrayAdapter);
         animCardArrayAdapter.setAbsListView(gridView);
-        gridView.setExternalAdapter(animCardArrayAdapter, mCardArrayAdapter);
+
+        mCardArrayAdapter.setExternalAdapter(animCardArrayAdapter);
+        gridView.setAdapter(mCardArrayAdapter);
+
+        //set the external adapter for our sticky mofo
+//        gridView.setExternalAdapter(animCardArrayAdapter, mCardArrayAdapter);
     }
 
 

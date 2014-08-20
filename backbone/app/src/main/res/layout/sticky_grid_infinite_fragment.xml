@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ *******************************************************************************
   ~   Copyright (c) 2013-2014 Gabriele Mariotti.
@@ -17,25 +18,21 @@
   ~  *****************************************************************************
   -->
 
-<resources>
-    <dimen name="drawer_width">320dp</dimen>
-    <dimen name="text_size_medium">14sp</dimen>
-    <dimen name="text_size_large">18sp</dimen>
-    <dimen name="purchase_text_size_large">18sp</dimen>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:card="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
 
-    <dimen name="card_birth_width">400dp</dimen>
-    <dimen name="card_mayknow_margin_top">10dp</dimen>
+   <cardUI.StickyCardGridView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:columnWidth="@dimen/card_grid_render_width"
+       android:numColumns="auto_fit"
+       android:verticalSpacing="3dp"
+       android:horizontalSpacing="2dp"
+       android:stretchMode="columnWidth"
+       android:gravity="center"
+       android:id="@+id/carddemo_grid_base1"/>
 
-    <dimen name="card_button_width">90dp</dimen>
-    <dimen name="card_button_height">90dp</dimen>
-    <dimen name="card_button_text_size">45sp</dimen>
-
-    <dimen name="carddemo_base_grid_columnwidth">600dp</dimen>
-    <dimen name="carddemo_base_grid_columnwidth_card">600dp</dimen>
-
-    <dimen name="card_grid_render_width">600dp</dimen>
-    <dimen name="card_grid_render_height">600dp</dimen>
-
-
-    <dimen name="card_rose">350dp</dimen>
-</resources>
+</LinearLayout>
