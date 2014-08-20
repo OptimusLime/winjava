@@ -39,7 +39,7 @@ public class GridCard extends Card {
 
     Activity activity;
     GplayGridThumb thumbnail;
-    String wid;
+    public String wid;
     GridCardButtonHandler buttonHandler;
 
     public GridCard(Activity activity) {

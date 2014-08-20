@@ -37,6 +37,8 @@ public class StickyHeaderCard extends Card {
     protected String mTitle;
     protected int count;
 
+    TextView mTitleView;
+
     public StickyHeaderCard(Context context) {
         this(context, R.layout.sticky_card_inner_base);
     }
@@ -66,6 +68,8 @@ public class StickyHeaderCard extends Card {
         if (title != null)
             title.setText(mTitle);
 
+        mTitleView = title;
+
     }
 
 
@@ -75,6 +79,9 @@ public class StickyHeaderCard extends Card {
 
     public void setTitle(String title) {
         mTitle = title;
+
+        if(mTitleView != null && title!=null)
+            mTitleView.setText(title);
     }
 
     public int getCount() {

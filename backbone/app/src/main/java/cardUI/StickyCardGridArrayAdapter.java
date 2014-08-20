@@ -12,6 +12,7 @@ import com.tonicartos.widget.stickygridheaders.StickyGridHeadersSimpleArrayAdapt
 
 import java.util.List;
 
+import cardUI.cards.GridCard;
 import cardUI.cards.StickyHeaderCard;
 import eplex.win.FastNEATJava.utils.cuid;
 import it.gmariotti.cardslib.library.internal.Card;
@@ -93,7 +94,10 @@ public class StickyCardGridArrayAdapter extends CardGridArrayAdapter implements 
             colorCard = cardView.getCard();
         }
 
-        colorCard.setTitle("Header : " + cuid.getInstance().generate());
+        GridCard gc = (GridCard)getItem(position);
+
+        colorCard.setTitle("Header : " + gc.wid);
+
         switch (position / 8) {
             case 0:
                 colorCard.setBackgroundResourceId(R.drawable.sticky_card_background);
