@@ -369,8 +369,9 @@ public class AsyncInfiniteIEC implements GridCard.GridCardButtonHandler, AsyncFe
     /**
      * This class takes a rectangular bitmap and gives a circular bitmap back.
      * Can be used for profile pictures or other kind of images.
+     * from the internet: http://blog.fabgate.co/growth-hacking-for-android-let-the-user-invite-her-friends-part-1/
      *
-     * @param rectangular bitmap
+     *
      * @return circular bitmap
      */
     public Bitmap getCircularBitmap(Bitmap bitmap) {

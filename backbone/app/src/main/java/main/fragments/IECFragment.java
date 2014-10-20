@@ -1,4 +1,4 @@
-package cardUI;
+package main.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import PicbreederActivations.PBBipolarSigmoid;
@@ -20,22 +21,30 @@ import PicbreederActivations.PBGaussian;
 import PicbreederActivations.pbLinear;
 import asynchronous.main.AsyncInfiniteIEC;
 import asynchronous.modules.FakeAsyncLocalIECModule;
+import cardUI.BaseFragment;
+import cardUI.StickyGridFragment;
 import dagger.ObjectGraph;
 import eplex.win.FastCPPNJava.activation.CPPNActivationFactory;
 import eplex.win.FastCPPNJava.activation.functions.Sine;
 import eplex.win.FastNEATJava.utils.NeatParameters;
+import main.NEATInitializer;
+import win.eplex.backbone.NEATArtifact;
 import win.eplex.backbone.R;
 
 /**
- * Grid as Google Play example
- *
- * @author Gabriele Mariotti (gabri.mariotti@gmail.com)
+ * Created by paul on 10/19/14.
  */
-public class StickyGridFragment extends BaseFragment {
+public class IECFragment extends BaseFragment {
 
     protected ScrollView mScrollView;
     private ObjectGraph graph;
     AsyncInfiniteIEC asyncIEC;
+    List<NEATArtifact> artifactSeeds;
+
+    public void setFragmentSeeds(List<NEATArtifact> seeds)
+    {
+        artifactSeeds = seeds;
+    }
 
     /**
      * Default layout to apply to card
@@ -56,30 +65,10 @@ public class StickyGridFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //no recurrent networks please!
-        NeatParameters np = new NeatParameters();
-        //set up the defaults here
-        np.pMutateAddConnection = .13;
-        np.pMutateAddNode = .12;
-        np.pMutateDeleteSimpleNeuron = .005;
-        np.pMutateDeleteConnection = .005;
-        np.pMutateConnectionWeights = .72;
-        np.pMutateChangeActivations = .02;
-        np.pNodeMutateActivationRate = 0.2;
+        NeatParameters np = NEATInitializer.DefaultNEATParameters();
 
-        np.connectionWeightRange = 3.0;
-        np.disallowRecurrence = true;
-
-        Map<String, Double> probs = new HashMap<String, Double>();
-        probs.put(PBBipolarSigmoid.class.getName(), .22);
-        probs.put(PBGaussian.class.getName(), .22);
-        probs.put(Sine.class.getName(), .22);
-        probs.put(PBCos.class.getName(), .22);
-        probs.put(pbLinear.class.getName(), .12);
-
-        //now we set up our probabilities of generating particular activation functions
-        CPPNActivationFactory.setProbabilities(probs);
-
+        //initialize (only happens once no worries)
+        NEATInitializer.InitializeActivationFunctions();
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode jNode = mapper.createObjectNode();
@@ -106,7 +95,7 @@ public class StickyGridFragment extends BaseFragment {
         if(graph == null)
         {
             //we need to inject our objects!
-            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule(getActivity(), np,null)).toArray());
+            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule(getActivity(), np, artifactSeeds)).toArray());
 
             //now inject ourselves! mwahahahahaha
             //a-rod loves this line
@@ -144,4 +133,5 @@ public class StickyGridFragment extends BaseFragment {
         super.onStop();
 
     }
+
 }

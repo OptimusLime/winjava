@@ -3,6 +3,8 @@ package asynchronous.modules;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import java.util.List;
+
 import asynchronous.implementation.AsyncArtifactToCard;
 import asynchronous.implementation.AsyncLocalIEC;
 import asynchronous.implementation.AsyncLocalRandomSeedLoader;
@@ -24,6 +26,7 @@ import eplex.win.winBackbone.Artifact;
 import eplex.win.winBackbone.ArtifactOffspringGenerator;
 import interfaces.PhenotypeCache;
 import it.gmariotti.cardslib.library.internal.Card;
+import win.eplex.backbone.NEATArtifact;
 
 /**
  * Created by paul on 8/14/14.
@@ -39,12 +42,17 @@ public class FakeAsyncLocalIECModule {
 
     Activity activity;
     NeatParameters np;
-    public FakeAsyncLocalIECModule(Activity activity, NeatParameters np)
+    List<NEATArtifact> seeds;
+    public FakeAsyncLocalIECModule(Activity activity, NeatParameters np, List<NEATArtifact> seeds)
     {
         this.np = np;
         this.activity = activity;
+        this.seeds = seeds;
     }
-    FakeAsyncLocalIECModule(){}
+
+    FakeAsyncLocalIECModule(List<NEATArtifact> seeds){
+        this.seeds = seeds;
+    }
 
     //Handle async infinite injections
     //AsyncInfiniteIEC.class
@@ -79,6 +87,7 @@ public class FakeAsyncLocalIECModule {
 
         //pull the asset manager from our set (I hope) activity
         seedLoader.assetManager = activity.getAssets();
+        seedLoader.customSeeds = seeds;
 
         return seedLoader;
     }

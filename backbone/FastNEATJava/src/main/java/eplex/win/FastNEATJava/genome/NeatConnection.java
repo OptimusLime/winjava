@@ -1,16 +1,30 @@
 package eplex.win.FastNEATJava.genome;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Expose `NeatConnection`.
  */
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NeatConnection
 {
+    @JsonProperty("gid")
     public String gid;
+
+    @JsonProperty("weight")
     public double weight;
+
+    @JsonProperty("sourceID")
     public String sourceID;
+
+    @JsonProperty("targetID")
     public String targetID;
+
     public boolean isMutated;
+
+    public NeatConnection(){}
 
     public NeatConnection(String gid, double weight, String sourceID, String targetID)
     {

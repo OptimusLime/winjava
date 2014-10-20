@@ -1,10 +1,9 @@
-package cardUI;
+package main.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,28 +13,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import PicbreederActivations.PBBipolarSigmoid;
-import PicbreederActivations.PBCos;
-import PicbreederActivations.PBGaussian;
-import PicbreederActivations.pbLinear;
-import asynchronous.main.AsyncInfiniteIEC;
-import asynchronous.modules.FakeAsyncLocalIECModule;
+import asynchronous.main.AsyncInfiniteHome;
+import asynchronous.modules.AsyncWinArkHomeModule;
+import cardUI.BaseFragment;
 import dagger.ObjectGraph;
-import eplex.win.FastCPPNJava.activation.CPPNActivationFactory;
-import eplex.win.FastCPPNJava.activation.functions.Sine;
-import eplex.win.FastNEATJava.utils.NeatParameters;
+import main.NEATInitializer;
 import win.eplex.backbone.R;
 
 /**
- * Grid as Google Play example
- *
- * @author Gabriele Mariotti (gabri.mariotti@gmail.com)
+ * Created by paul on 10/19/14.
  */
-public class StickyGridFragment extends BaseFragment {
+public class HomeFragment extends BaseFragment {
 
-    protected ScrollView mScrollView;
     private ObjectGraph graph;
-    AsyncInfiniteIEC asyncIEC;
+    AsyncInfiniteHome asyncHomeUI;
 
     /**
      * Default layout to apply to card
@@ -44,50 +35,29 @@ public class StickyGridFragment extends BaseFragment {
 
     @Override
     public int getTitleResourceId() {
-        return R.string.iec_grid_title;
+        return R.string.home_grid_title;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.sticky_grid_infinite_fragment, container, false);
+        return inflater.inflate(R.layout.home_grid_infinite_fragment, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //no recurrent networks please!
-        NeatParameters np = new NeatParameters();
-        //set up the defaults here
-        np.pMutateAddConnection = .13;
-        np.pMutateAddNode = .12;
-        np.pMutateDeleteSimpleNeuron = .005;
-        np.pMutateDeleteConnection = .005;
-        np.pMutateConnectionWeights = .72;
-        np.pMutateChangeActivations = .02;
-        np.pNodeMutateActivationRate = 0.2;
 
-        np.connectionWeightRange = 3.0;
-        np.disallowRecurrence = true;
-
-        Map<String, Double> probs = new HashMap<String, Double>();
-        probs.put(PBBipolarSigmoid.class.getName(), .22);
-        probs.put(PBGaussian.class.getName(), .22);
-        probs.put(Sine.class.getName(), .22);
-        probs.put(PBCos.class.getName(), .22);
-        probs.put(pbLinear.class.getName(), .12);
-
-        //now we set up our probabilities of generating particular activation functions
-        CPPNActivationFactory.setProbabilities(probs);
-
+        //make sure it happens at least once (it will prevent double calls)
+        NEATInitializer.InitializeActivationFunctions();
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode jNode = mapper.createObjectNode();
 
         ObjectNode uiParams = mapper.createObjectNode();
 
-        int width = (int)getActivity().getResources().getInteger(R.integer.cppn_render_width);
-        int height = (int)getActivity().getResources().getInteger(R.integer.cppn_render_height);
+        int width = (int)getActivity().getResources().getInteger(R.integer.home_cppn_render_width);
+        int height = (int)getActivity().getResources().getInteger(R.integer.home_cppn_render_height);
 
         uiParams.set("width", mapper.convertValue(width, JsonNode.class));
         uiParams.set("height", mapper.convertValue(height , JsonNode.class));
@@ -106,17 +76,17 @@ public class StickyGridFragment extends BaseFragment {
         if(graph == null)
         {
             //we need to inject our objects!
-            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule(getActivity(), np,null)).toArray());
+            graph = ObjectGraph.create(Arrays.asList(new AsyncWinArkHomeModule(getActivity())).toArray());
 
             //now inject ourselves! mwahahahahaha
             //a-rod loves this line
             //SPORTZ!
-            asyncIEC = graph.get(AsyncInfiniteIEC.class);
-            asyncIEC.injectGraph(getActivity(), graph);
+            asyncHomeUI = graph.get(AsyncInfiniteHome.class);
+            asyncHomeUI.injectGraph(getActivity(), graph);
 
             //now we initialize everything! This can be an async task, if you want
             //those it's pretty simple on its own
-            asyncIEC.asyncInitializeIECandUI(jNode);
+            asyncHomeUI.asyncInitializeHomeandUI(jNode);
         }
     }
 

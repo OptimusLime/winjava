@@ -18,22 +18,12 @@
   ~  *****************************************************************************
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:card="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-               android:background="@android:color/white">
-
-   <cardUI.StickyCardGridView
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:columnWidth="@dimen/card_grid_render_width"
-       android:numColumns="auto_fit"
-       android:verticalSpacing="3dp"
-       android:horizontalSpacing="2dp"
-       android:stretchMode="columnWidth"
-       android:gravity="center"
-       android:id="@+id/carddemo_grid_base1"/>
-
-</LinearLayout>
+<it.gmariotti.cardslib.library.view.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/list_cardId"
+    android:layout_width="@dimen/home_card_grid_render_width"
+    android:layout_height="wrap_content"
+    style="@style/grid_card"
+    card:card_layout_resourceID="@layout/carddemo_googleplay_layout"
+    />

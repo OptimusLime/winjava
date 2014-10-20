@@ -3,6 +3,9 @@ package eplex.win.FastNEATJava.genome;
 
 import android.util.Pair;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -20,13 +23,23 @@ import eplex.win.FastNEATJava.utils.ConnectionMutationParameterGroup;
 import eplex.win.FastNEATJava.utils.NeatParameters;
 import eplex.win.FastNEATJava.utils.cuid;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NeatGenome
 {
+    @JsonProperty("parents")
     public List<String> parents;
+
+    @JsonProperty("wid")
     public String gid;
+
     public double fitness;
+
+    @JsonProperty("nodes")
     public List<NeatNode> nodes;
+
+    @JsonProperty("connections")
     public List<NeatConnection> connections;
+
     Map<String, NeatConnection> connectionLookup;
     Map<String, NeatNode> nodeLookup;
 
@@ -35,6 +48,8 @@ public class NeatGenome
     public int outputNodeCount;
     public int inputBiasOutputNodeCount;
     public int inputBiasOutputNodeCountMinus2;
+
+    public NeatGenome(){}
 
     public NeatGenome(String gid,
                       List<NeatNode> nodes,
@@ -53,16 +68,39 @@ public class NeatGenome
         // We also keep all input(including bias) neurons at the start of the neuronGeneList followed by
         // the output neurons.
 
-        this.inputNodeCount= incount;
-        this.inputAndBiasNodeCount= incount+1;
-        this.outputNodeCount= outcount;
-        this.inputBiasOutputNodeCount= this.inputAndBiasNodeCount + this.outputNodeCount;
-        this.inputBiasOutputNodeCountMinus2= this.inputBiasOutputNodeCount -2;
+        initializeNodeCounts();
+
+//        this.inputNodeCount= incount;
+//        this.inputAndBiasNodeCount= incount+1;
+//        this.outputNodeCount= outcount;
+//        this.inputBiasOutputNodeCount= this.inputAndBiasNodeCount + this.outputNodeCount;
+//        this.inputBiasOutputNodeCountMinus2= this.inputBiasOutputNodeCount -2;
 
 
         // Temp tables.
         this.connectionLookup = null;
         this.nodeLookup = null;
+    }
+
+    public void initializeNodeCounts()
+    {
+        int incount = 0;
+        int outcount = 0;
+
+        for(int i=0; i < this.nodes.size(); i++) {
+
+            NeatNode nn = this.nodes.get(i);
+            if (nn.type == NodeType.input)
+                incount++;
+            else if(nn.type == NodeType.output)
+                outcount++;
+        }
+
+        this.inputNodeCount= incount;
+        this.inputAndBiasNodeCount= incount+1;
+        this.outputNodeCount= outcount;
+        this.inputBiasOutputNodeCount= this.inputAndBiasNodeCount + this.outputNodeCount;
+        this.inputBiasOutputNodeCountMinus2= this.inputBiasOutputNodeCount -2;
     }
 
     public static String nextInnovationID(int ix)

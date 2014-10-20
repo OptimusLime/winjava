@@ -23,17 +23,18 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-               android:background="@android:color/white">
+              android:id="@+id/home_grid_linear_layout">
 
-   <cardUI.StickyCardGridView
+   <it.gmariotti.cardslib.library.view.CardGridView
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:columnWidth="@dimen/card_grid_render_width"
+       android:columnWidth="@dimen/home_card_grid_render_width"
        android:numColumns="auto_fit"
        android:verticalSpacing="3dp"
        android:horizontalSpacing="2dp"
        android:stretchMode="columnWidth"
        android:gravity="center"
-       android:id="@+id/carddemo_grid_base1"/>
+       card:list_card_layout_resourceID="@layout/home_card_grid_layout"
+       android:id="@+id/home_card_grid_view"/>
 
 </LinearLayout>

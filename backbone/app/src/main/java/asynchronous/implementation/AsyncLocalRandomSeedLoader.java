@@ -18,6 +18,7 @@ import PicbreederActivations.PBGaussian;
 import PicbreederActivations.pbLinear;
 import asynchronous.interfaces.AsyncSeedLoader;
 import bolts.Task;
+import dagger.ObjectGraph;
 import eplex.win.FastCPPNJava.activation.functions.NullFn;
 import eplex.win.FastCPPNJava.activation.functions.Sine;
 import eplex.win.FastCPPNJava.network.NodeType;
@@ -38,13 +39,22 @@ import win.eplex.backbone.Node;
 public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
 
     public AssetManager assetManager;
+    public List<NEATArtifact> customSeeds;
 
     @Override
     public Task<List<Artifact>> asyncLoadSeeds(JsonNode params) {
 
-        //now we need to create some fake seeds, and promise their return
-        //we can use a convenience method -- since we are doing a local random version here
-        return Task.callInBackground(new Callable<List<Artifact>>() {
+        if(customSeeds != null)
+            return Task.callInBackground(new Callable<List<Artifact>>() {
+                @Override
+                public List<Artifact> call() throws Exception {
+                    return seedsFromList();
+                }
+            });
+        else
+            //now we need to create some fake seeds, and promise their return
+            //we can use a convenience method -- since we are doing a local random version here
+            return Task.callInBackground(new Callable<List<Artifact>>() {
             @Override
             public List<Artifact> call() throws Exception {
                 return seedsFromFile();
@@ -111,7 +121,15 @@ public class AsyncLocalRandomSeedLoader implements AsyncSeedLoader{
         return seeds;
     }
 
-
+    List<Artifact> seedsFromList()
+    {
+        ArrayList<Artifact> seeds =  new ArrayList<Artifact>();
+        for(int i=0; i < customSeeds.size(); i++)
+        {
+            seeds.add((Artifact)customSeeds.get(i));
+        }
+        return seeds;
+    }
     List<Artifact> seedsFromFile()
     {
         ArrayList<Artifact> seeds =  new ArrayList<Artifact>();

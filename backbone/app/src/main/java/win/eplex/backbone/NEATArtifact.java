@@ -1,5 +1,7 @@
 package win.eplex.backbone;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -19,10 +21,13 @@ import eplex.win.winBackbone.Genome;
 /**
  * Created by paul on 8/13/14.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NEATArtifact implements Artifact {
 
+    @JsonProperty("wid")
     private String wid;
 
+    @JsonProperty("genome")
     public NeatGenome genome;
 
     @Override
@@ -35,7 +40,7 @@ public class NEATArtifact implements Artifact {
         this.wid = value;
     }
 
-
+    @JsonProperty("parents")
     List<String> parents;
 
     @Override

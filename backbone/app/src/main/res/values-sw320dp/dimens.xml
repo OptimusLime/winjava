@@ -24,4 +24,8 @@
     <dimen name="card_grid_render_width">350dp</dimen>
     <dimen name="card_grid_render_height">350dp</dimen>
 
+    <!--Home Grid-->
+    <dimen name="home_card_grid_render_width">140dp</dimen>
+    <dimen name="home_card_grid_render_height">140dp</dimen>
+
 </resources>

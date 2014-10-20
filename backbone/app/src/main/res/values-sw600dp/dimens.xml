@@ -36,6 +36,10 @@
     <dimen name="card_grid_render_width">600dp</dimen>
     <dimen name="card_grid_render_height">600dp</dimen>
 
+    <!--Home Grid-->
+    <dimen name="home_card_grid_render_width">280dp</dimen>
+    <dimen name="home_card_grid_render_height">280dp</dimen>
+
 
     <dimen name="card_rose">350dp</dimen>
 </resources>

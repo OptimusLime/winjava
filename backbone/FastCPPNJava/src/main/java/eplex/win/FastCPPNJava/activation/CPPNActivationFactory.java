@@ -34,6 +34,7 @@ public class CPPNActivationFactory {
 
             // For now the function ID is the name of a class that implements IActivationFunction.
             functionTable.put(functionID, aFunction);
+            functionTable.put(aFunction.getClass().getSimpleName(), aFunction);
 
             return aFunction;
 

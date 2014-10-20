@@ -76,27 +76,33 @@ public class AsyncArtifactToCPPN implements AsyncArtifactToPhenotype<Artifact, d
         double[] inputs;
 
         int ix = 0;
-        for(int y=0; y < allY; y++) {
+        try {
+            for (int y = 0; y < allY; y++) {
 
-            for (int x = 0; x < allX; x++) {
+                for (int x = 0; x < allX; x++) {
 
-                hsvPull = new double[3];
+                    hsvPull = new double[3];
 
-                //just like in picbreeder!
-                currentX = ((x << 1) - width + 1.0) / width;
-                currentY = ((y << 1) - height + 1.0) / height;
+                    //just like in picbreeder!
+                    currentX = ((x << 1) - width + 1.0) / width;
+                    currentY = ((y << 1) - height + 1.0) / height;
 
-                inputs = new double[]{currentX, currentY, Math.sqrt(currentX*currentX + currentY*currentY)*inSqrt2};
+                    inputs = new double[]{currentX, currentY, Math.sqrt(currentX * currentX + currentY * currentY) * inSqrt2};
 
-                decoded.clearSignals();
-                decoded.recursiveActivation(inputs);
+                    decoded.clearSignals();
+                    decoded.recursiveActivation(inputs);
 
-                hsvPull[0] = decoded.getOutputSignal(0);
-                hsvPull[1] = decoded.getOutputSignal(1);
-                hsvPull[2] = decoded.getOutputSignal(2);
+                    hsvPull[0] = decoded.getOutputSignal(0);
+                    hsvPull[1] = decoded.getOutputSignal(1);
+                    hsvPull[2] = decoded.getOutputSignal(2);
 
-                cppnOutputs[ix++] = hsvPull;
+                    cppnOutputs[ix++] = hsvPull;
+                }
             }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
         return cppnOutputs;

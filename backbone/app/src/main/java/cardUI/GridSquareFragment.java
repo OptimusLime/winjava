@@ -125,7 +125,7 @@ public class GridSquareFragment extends BaseFragment {
         if(graph == null)
         {
             //we need to inject our objects!
-            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule(getActivity(), np)).toArray());
+            graph = ObjectGraph.create(Arrays.asList(new FakeAsyncLocalIECModule(getActivity(), np, null)).toArray());
 
             //now inject ourselves! mwahahahahaha
             //a-rod loves this line
